@@ -40,16 +40,16 @@ class Routing {
 
     public static function run(string $path) {
         switch ($path) {
-        case in_array($path, array_keys(Routing::$routes)):
-            $controller = Routing::$routes[$path]['controller'];
-            $action = Routing::$routes[$path]['action'];
+            case in_array($path, array_keys(Routing::$routes)):
+                $controller = Routing::$routes[$path]['controller'];
+                $action = Routing::$routes[$path]['action'];
 
-            $controllerObj = new $controller;
-            $controllerObj->$action();
-            break;
-        default:
-            include 'public/views/404.html';
-            break;
-} 
+                $controllerObj = new $controller;
+                $controllerObj->$action();
+                break;
+            default:
+                include 'public/views/404.html';
+                break;
+        } 
     }
 }

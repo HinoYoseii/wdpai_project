@@ -13,9 +13,7 @@ class DashboardController extends AppController {
     }
 
     public function dashboard() {
-        if(isset($_COOKIE['username']))
-            $username = $_COOKIE['username'];
-        else{
+        if(!isset($_SESSION['username'])){
             $url = "http://$_SERVER[HTTP_HOST]";
             header("Location: {$url}/login");
             return;

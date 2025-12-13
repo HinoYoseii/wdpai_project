@@ -6,9 +6,7 @@ require_once __DIR__.'/../repository/UserRepository.php';
 class AccountController extends AppController {
 
     public function account() {
-        if(isset($_COOKIE['username']))
-            $username = $_COOKIE['username'];
-        else{
+        if(!isset($_SESSION['username'])){
             $url = "http://$_SERVER[HTTP_HOST]";
             header("Location: {$url}/login");
             return;
