@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="public/styles/main.css">
     <link rel="stylesheet" type="text/css" href="public/styles/dashboard.css">
     <link rel="stylesheet" type="text/css" href="public/styles/navbar.css">
-    <script src="public/scripts/main.js" defer></script>
+    <script src="public/scripts/dashboard.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -25,56 +25,8 @@
     <div class="main-container">
         <h1>TODO</h1>
         <hr class="divider">
-        <div class="todo-list">
-            <div class="list-item">
-                <img src="public/assets/category.png" class="list-icon" alt="ikona">
-                <div class="content">
-                    <p class="title">huh</p>
-                    <p class="description">test</p>
-                </div>
-                <button class="menu-btn"><img src="public/assets/dots-vertical.png" class="list-icon" alt="ikona"></button>
-            </div>
-            <div class="list-item">
-                <img src="public/assets/category.png" class="list-icon" alt="ikona">
-                <div class="content">
-                    <p class="title">huh</p>
-                    <p class="description">test</p>
-                </div>
-                <button class="menu-btn"><img src="public/assets/dots-vertical.png" class="list-icon" alt="ikona"></button>
-            </div>
-            <div class="list-item">
-                <img src="public/assets/category.png" class="list-icon" alt="ikona">
-                <div class="content">
-                    <p class="title">huh</p>
-                    <p class="description">test</p>
-                </div>
-                <button class="menu-btn"><img src="public/assets/dots-vertical.png" class="list-icon" alt="ikona"></button>
-            </div>
-            <div class="list-item">
-                <img src="public/assets/category.png" class="list-icon" alt="ikona">
-                <div class="content">
-                    <p class="title">huh</p>
-                    <p class="description">test</p>
-                </div>
-                <button class="menu-btn"><img src="public/assets/dots-vertical.png" class="list-icon" alt="ikona"></button>
-            </div>
-            <div class="list-item">
-                <img src="public/assets/category.png" class="list-icon" alt="ikona">
-                <div class="content">
-                    <p class="title">huh</p>
-                    <p class="description">test</p>
-                </div>
-                <button class="menu-btn"><img src="public/assets/dots-vertical.png" class="list-icon" alt="ikona"></button>
-            </div>
-            <div class="list-item">
-                <img src="public/assets/category.png" class="list-icon" alt="ikona">
-                <div class="content">
-                    <p class="title">huh</p>
-                    <p class="description">test</p>
-                </div>
-                <button class="menu-btn"><img src="public/assets/dots-vertical.png" class="list-icon" alt="ikona"></button>
-            </div>
-            
+        <div class="todo-list" id="todoList">
+            <p class="loading-message">Ładowanie zadań...</p>
         </div>
     </div>
 </body>

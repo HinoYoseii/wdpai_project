@@ -32,9 +32,9 @@ class Routing {
             'controller' => "AccountController",
             'action' => 'account'
         ],
-        'search-cards' => [
+        'getTasks' => [
             'controller' => "DashboardController",
-            'action' => 'search'
+            'action' => 'getTasks'
         ]
     ];
 
