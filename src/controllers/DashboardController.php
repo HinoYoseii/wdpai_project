@@ -3,15 +3,19 @@
 require_once 'AppController.php';
 require_once __DIR__.'/../repository/UserRepository.php';
 require_once __DIR__.'/../repository/TaskRepository.php';
+require_once __DIR__.'/../repository/PreferencesRepository.php';
+require_once __DIR__.'/../models/Preferences.php';
 
 class DashboardController extends AppController {
 
     private $taskRepository;
     private $userRepository;
+    private $preferencesRepository;
 
     public function __construct() {
         $this->taskRepository = TaskRepository::getInstance();
         $this->userRepository = UserRepository::getInstance();
+        $this->preferencesRepository = PreferencesRepository::getInstance();
     }
 
     public function dashboard() {
@@ -25,59 +29,82 @@ class DashboardController extends AppController {
     }
 
     public function getTasks() {
+        // Set header first to ensure JSON response
         header('Content-Type: application/json');
         
-        if(!isset($_SESSION['username'])){
-            http_response_code(401);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Unauthorized'
-            ]);
-            return;
-        }
+        try {
+            if(!isset($_SESSION['username'])){
+                http_response_code(401);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Unauthorized'
+                ]);
+                return;
+            }
 
-        // Get user ID from session
-        $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-        if (!$user) {
-            http_response_code(404);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'User not found'
-            ]);
-            return;
-        }
+            // Get user ID from session
+            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
+            if (!$user) {
+                http_response_code(404);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'User not found'
+                ]);
+                return;
+            }
 
-        $userId = $user['userid'];
+            $userId = $user['userid'];
 
-        // Get unfinished tasks
-        $tasks = $this->taskRepository->getUnfinishedTasks($userId);
+            // Ensure user has preferences (create default if not)
+            $this->preferencesRepository->ensurePreferencesExist($userId);
 
-        if (!$tasks) {
+            // Get unfinished tasks
+            $tasks = $this->taskRepository->getUnfinishedTasks($userId);
+
+            if (!$tasks) {
+                http_response_code(200);
+                echo json_encode([
+                    'status' => 'success',
+                    'tasks' => []
+                ]);
+                return;
+            }
+
+            // Calculate priority score for each task
+            $tasksWithScore = $this->calculateTaskPriorities($tasks, $userId);
+
+            // Sort tasks by priority score (highest first)
+            usort($tasksWithScore, function($a, $b) {
+                return $b['priorityScore'] <=> $a['priorityScore'];
+            });
+
             http_response_code(200);
             echo json_encode([
                 'status' => 'success',
-                'tasks' => []
+                'tasks' => $tasksWithScore
             ]);
-            return;
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Internal server error: ' . $e->getMessage()
+            ]);
         }
-        // Calculate priority score for each task
-        $tasksWithScore = $this->calculateTaskPriorities($tasks, $userId);
-
-        // Sort tasks by priority score (highest first)
-        usort($tasksWithScore, function($a, $b) {
-            return $b['priorityScore'] <=> $a['priorityScore'];
-        });
-
-        http_response_code(200);
-        echo json_encode([
-            'status' => 'success',
-            'tasks' => $tasksWithScore
-        ]);
     }
 
     private function calculateTaskPriorities(array $tasks, int $userId): array {
-        // Get user preferences for influence weights
-        $preferences = $this->getUserPreferences($userId);
+        // Get user preferences using the repository
+        $preferencesData = $this->preferencesRepository->getPreferences($userId);
+
+        if ($preferencesData) {
+            $preferences = [
+                'funInfluence' => (float)($preferencesData['funinfluence'] ?? 1.0),
+                'difficultyInfluence' => (float)($preferencesData['difficultyinfluence'] ?? 1.0),
+                'importanceInfluence' => (float)($preferencesData['importanceinfluence'] ?? 1.0),
+                'timeInfluence' => (float)($preferencesData['timeinfluence'] ?? 1.0),
+                'deadlineInfluence' => (float)($preferencesData['deadlineinfluence'] ?? 1.0)
+            ];
+        }
         
         $tasksWithScore = [];
         $currentTime = time();
@@ -126,40 +153,5 @@ class DashboardController extends AppController {
         }
 
         return $tasksWithScore;
-    }
-
-    private function getUserPreferences(int $userId): array {
-        // Default preferences if user doesn't have custom ones
-        $defaults = [
-            'funInfluence' => 1.0,
-            'difficultyInfluence' => 1.0,
-            'importanceInfluence' => 1.0,
-            'timeInfluence' => 1.0,
-            'deadlineInfluence' => 1.0
-        ];
-
-        return $defaults;
-
-        // $stmt = $this->database->connect()->prepare('
-        //     SELECT funinfluence, difficultyinfluence, importanceinfluence, timeinfluence, deadlineinfluence
-        //     FROM userpreferences
-        //     WHERE userid = :userId
-        // ');
-        // $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-        // $stmt->execute();
-        
-        // $prefs = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // if (!$prefs) {
-        //     return $defaults;
-        // }
-
-        return [
-            'funInfluence' => (float)($prefs['funinfluence'] ?? 1.0),
-            'difficultyInfluence' => (float)($prefs['difficultyinfluence'] ?? 1.0),
-            'importanceInfluence' => (float)($prefs['importanceinfluence'] ?? 1.0),
-            'timeInfluence' => (float)($prefs['timeinfluence'] ?? 1.0),
-            'deadlineInfluence' => (float)($prefs['deadlineinfluence'] ?? 1.0)
-        ];
     }
 }

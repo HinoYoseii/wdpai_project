@@ -11,7 +11,6 @@ CREATE TABLE Categories (
     categoryID SERIAL PRIMARY KEY,
     userID INTEGER NOT NULL,
     categoryName VARCHAR(255) NOT NULL,
-    categoryIcon VARCHAR(255),
     FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
 );
 
@@ -59,11 +58,11 @@ INSERT INTO UserPreferences (userID, bio, deleteFinishedTasks) VALUES
 (1, 'Software developer who loves productivity apps', false),
 (2, 'Project manager focused on task optimization', true);
 
-INSERT INTO Categories (userID, categoryName, categoryIcon) VALUES
-(1,'Work', 'work_icon.png'), -- 1
-(1,'Personal', 'personal_icon.png'), -- 2
-(2,'Work', 'work_icon.png'), -- 3
-(2,'Health', 'health_icon.png'); -- 4
+INSERT INTO Categories (userID, categoryName) VALUES
+(1,'Work'), -- 1
+(1,'Personal'), -- 2
+(2,'Work'), -- 3
+(2,'Health'); -- 4
 
 INSERT INTO Tasks (userID, categoryID, taskDescription, deadlineDate, fun, difficulty, importance, time, isFinished) VALUES
 (1, 1, 'Implement user authentication system', '2024-12-31 18:00:00', 70, 80, 90, 60, false),

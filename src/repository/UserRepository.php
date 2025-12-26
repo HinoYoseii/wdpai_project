@@ -82,6 +82,7 @@ class UserRepository extends Repository
     }
 
 
+    // Add to UserRepository.php
     public function createUser(
         string $email,
         string $hashedPassword,
@@ -90,6 +91,7 @@ class UserRepository extends Repository
         $stmt = $this->database->connect()->prepare(
             '
             INSERT INTO public.users (email, hashedpassword, username) VALUES (?,?,?)
+            RETURNING userid
             '
         );
         $stmt->execute([
@@ -97,6 +99,15 @@ class UserRepository extends Repository
             $hashedPassword,
             $username
         ]);
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userId = $result['userid'];
+        
+        // Create default preferences for the new user
+        $preferencesRepository = PreferencesRepository::getInstance();
+        $preferencesRepository->createPreferences($userId);
+        
+        return $userId;
     }
 
 }

@@ -18,6 +18,11 @@
     height: 24px;
 }
 
+.menu-buttons{
+    display: flex;
+    gap:30px
+}
+
 .menu-btn{
     border:none;
     background: none;
@@ -47,3 +52,4 @@
     color: #555555;
     overflow: hidden;
 }
+

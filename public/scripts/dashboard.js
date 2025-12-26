@@ -66,7 +66,9 @@ function createTaskElement(task) {
     const deadlineClass = isOverdue ? 'overdue' : '';
 
     listItem.innerHTML = `
-        <img src="public/assets/category.png" class="list-icon" alt="ikona">
+        <button class="menu-btn" onclick="pinTask(${task.taskid})">
+            <img src="public/assets/star_empty.png" class="list-icon" alt="ikona">
+        </button>
         <div class="content">
             <p class="title">${escapeHtml(task.taskdescription)}</p>
             <p class="description ${deadlineClass}">
@@ -74,9 +76,17 @@ function createTaskElement(task) {
                 ${task.priorityScore ? `<span class="priority-badge">Priorytet: ${task.priorityScore}</span>` : ''}
             </p>
         </div>
-        <button class="menu-btn" onclick="toggleTaskMenu(${task.taskid})">
-            <img src="public/assets/dots-vertical.png" class="list-icon" alt="ikona">
-        </button>
+        <div class="menu-buttons">
+            <button class="menu-btn" onclick="finishTask(${task.taskid})">
+                <img src="public/assets/check.png" class="list-icon" alt="ikona">
+            </button>
+            <button class="menu-btn" onclick="editTask(${task.taskid})">
+                <img src="public/assets/edit.png" class="list-icon" alt="ikona">
+            </button>
+            <button class="menu-btn" onclick="deleteTask(${task.taskid})">
+                <img src="public/assets/delete.png" class="list-icon" alt="ikona">
+            </button>
+        </div>
     `;
 
     return listItem;
@@ -107,7 +117,18 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function toggleTaskMenu(taskId) {
-    // TODO: Implement task menu (mark as complete, edit, delete)
-    console.log('Toggle menu for task:', taskId);
+function pinTask(taskId) {
+    console.log('Pin for task:', taskId);
+}
+
+function finishTask(taskId) {
+    console.log('Finish for task:', taskId);
+}
+
+function editTask(taskId) {
+    console.log('Edit for task:', taskId);
+}
+
+function deleteTask(taskId) {
+    console.log('Delete for task:', taskId);
 }
