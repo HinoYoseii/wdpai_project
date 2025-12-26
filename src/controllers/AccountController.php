@@ -12,8 +12,8 @@ class AccountController extends AppController {
             return;
         }
 
-    $userRepository = UserRepository::getInstance();
-    return $this->render("account");
+        $userRepository = UserRepository::getInstance();
+        return $this->render("account");
     }
 
 }

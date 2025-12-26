@@ -13,10 +13,10 @@ class CategoriesController extends AppController {
         }
         // tutaj logika logowania(sprawdzanie uzytkownika, zabezpieczenie inputu itd.)
 
-    $userRepository = UserRepository::getInstance();
-    //$users = $userRepository->getUsers();
+        $userRepository = UserRepository::getInstance();
+        //$users = $userRepository->getUsers();
 
-    return $this->render("categories");
+        return $this->render("categories");
     }
 
 }

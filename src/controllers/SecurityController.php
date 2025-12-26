@@ -18,10 +18,11 @@ class SecurityController extends AppController
     public function login()
     {
         if (!$this->isPost()) {
+            $_SESSION['csrf'] = md5(uniqid(mt_rand(), true));
             return $this->render('login');
         }
 
-        // if ($_POST['csrf'] !== $_SESSION['csrf']) die("CSRF detected"); 
+        if ($_POST['csrf'] !== $_SESSION['csrf']) die("CSRF detected"); 
 
         $email = trim($_POST["email"] ?? '');
         $password = $_POST["password"] ?? '';
