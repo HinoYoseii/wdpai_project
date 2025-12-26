@@ -3,6 +3,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Roboto', sans-serif;
+    border: none;
 }
 
 body {
@@ -57,22 +58,35 @@ input::placeholder {
     font-size: 14px;
 }
 
-button.submit-btn {
-    background-color: #4F517D;
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 4px;
+button{
     font-size: 16px;
     font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+
+.submit-btn,
+.cancel-btn{
+    background-color: #4F517D;
+    color: white;
+    cursor: pointer;
     margin-top: 10px;
 }
 
-button.submit-btn:hover {
+.submit-btn:hover{
     background-color: #373958;
 }
+
+.cancel-btn{
+    background-color: #666666;
+}
+
+.cancel-btn:hover {
+    background-color: #474747;
+}
+
 
 @media (max-width: 480px) {
     .main-container{
@@ -90,7 +104,8 @@ button.submit-btn:hover {
     }
 }
 
-hr.divider {
+.divider {
+    margin: 1vh 0 1vh 0;
     border-top: 3px solid #CAC4D0;
     border-radius: 10px;
 }
@@ -98,4 +113,70 @@ hr.divider {
 h1{
     font-family: 'Inconsolata', sans-serif;
     color: #4F517D;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.list-item {
+    background-color: #EDEDEE;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 8px 20px;
+    box-shadow: 0px 4px 5px 0px rgba(18, 1, 1, 0.20);
+}
+
+.action-buttons{
+    display: flex;
+    gap:30px
+}
+
+.menu-btn{
+    border:none;
+    background: none;
+    cursor: pointer;
+    position:relative;
+    padding: 0;
+}
+
+.menu-btn img{
+    width: 24px;
+    height: 24px;
+    position:absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+}
+
+.content{
+    width: 100%;
+}
+
+.title{
+    font-size: 24px;
+    font-weight: bold;
+    overflow: hidden;
+}
+
+.description{
+    font-size: 16px;
+    color: #555555;
+    overflow: hidden;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #4F517D;
+    margin-bottom: -10px;
 }

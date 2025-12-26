@@ -13,15 +13,8 @@ form {
     display: flex;
     flex-direction: column;
     gap: 2vh;
-
 }
 
-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #4F517D;
-    margin-bottom: -10px;
-}
 
 .message {
     background-color: #f8d7da;

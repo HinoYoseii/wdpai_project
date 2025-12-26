@@ -76,7 +76,7 @@ function createTaskElement(task) {
                 ${task.priorityScore ? `<span class="priority-badge">Priorytet: ${task.priorityScore}</span>` : ''}
             </p>
         </div>
-        <div class="menu-buttons">
+        <div class="action-buttons">
             <button class="menu-btn" onclick="finishTask(${task.taskid})">
                 <img src="public/assets/check.png" class="list-icon" alt="ikona">
             </button>

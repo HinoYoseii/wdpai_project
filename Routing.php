@@ -35,6 +35,22 @@ class Routing {
         'getTasks' => [
             'controller' => "DashboardController",
             'action' => 'getTasks'
+        ],
+        'getCategories' => [
+            'controller' => "CategoriesController",
+            'action' => 'getCategories'
+        ],
+        'createCategory' => [
+            'controller' => "CategoriesController",
+            'action' => 'createCategory'
+        ],
+        'updateCategory' => [
+            'controller' => "CategoriesController",
+            'action' => 'updateCategory'
+        ],
+        'deleteCategory' => [
+            'controller' => "CategoriesController",
+            'action' => 'deleteCategory'
         ]
     ];
 
