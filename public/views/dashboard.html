@@ -22,10 +22,39 @@
         </ul>
     </nav>
     <div class="main-container">
-        <h1>TODO</h1>
+        <div class="header-section">
+            <h1>TODO</h1>
+            <button class="add-btn" id="addTaskBtn">+ Dodaj zadanie</button>
+        </div>
         <hr class="divider">
         <div class="list" id="todoList">
             <p class="loading-message">Ładowanie zadań...</p>
+        </div>
+    </div>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h1 id="modalTitle">Dodaj zadanie</h1>
+            <form id="addForm">
+                <input type="hidden" id="taskId">
+                <label for="taskName" class="label">Nazwa zadania</label>
+                <input type="text" id="taskName" name="taskName" required maxlength="255">
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Zapisz</button>
+                    <button type="button" class="cancel-btn" id="cancelBtn">Anuluj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h1>Potwierdzenie usunięcia</h1>
+            <p>Czy na pewno chcesz usunąć to zadanie?</p>
+            <div class="form-actions">
+                <button class="submit-btn" id="confirmDeleteBtn">Usuń</button>
+                <button class="cancel-btn" id="cancelDeleteBtn">Anuluj</button>
+            </div>
         </div>
     </div>
 </body>

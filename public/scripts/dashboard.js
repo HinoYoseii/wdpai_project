@@ -13,11 +13,9 @@ async function loadTasks() {
             }
         });
 
-        // Log the raw response for debugging
         const responseText = await response.text();
         console.log('Raw response:', responseText);
 
-        // Try to parse as JSON
         let data;
         try {
             data = JSON.parse(responseText);
@@ -62,19 +60,16 @@ function createTaskElement(task) {
     listItem.dataset.taskId = task.taskid;
 
     const deadline = task.deadlinedate ? formatDeadline(task.deadlinedate) : 'Brak terminu';
-    const isOverdue = task.deadlinedate && new Date(task.deadlinedate) < new Date();
-    const deadlineClass = isOverdue ? 'overdue' : '';
 
     listItem.innerHTML = `
         <button class="menu-btn" onclick="pinTask(${task.taskid})">
             <img src="public/assets/star_empty.png" class="list-icon" alt="ikona">
         </button>
         <div class="content">
-            <p class="title">${escapeHtml(task.taskdescription)}</p>
-            <p class="description ${deadlineClass}">
-                <span>Termin: ${deadline}</span>
-                ${task.priorityScore ? `<span class="priority-badge">Priorytet: ${task.priorityScore}</span>` : ''}
-            </p>
+            <p class="title">${task.taskdescription}</p>
+            <p class="description">Kategoria: ${task.categoty}</p>
+            <p class="description">Termin: ${deadline}</p>
+
         </div>
         <div class="action-buttons">
             <button class="menu-btn" onclick="finishTask(${task.taskid})">

@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Repository.php';
+require_once __DIR__.'/../models/Category.php';
 
 class CategoriesRepository extends Repository
 {
