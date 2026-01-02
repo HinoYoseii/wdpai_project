@@ -14,18 +14,20 @@ CREATE TABLE Categories (
     FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
 );
 
--- Tasks table
+-- Tasks table with updated structure
 CREATE TABLE Tasks (
     taskID SERIAL PRIMARY KEY,
     userID INTEGER NOT NULL,
     categoryID INTEGER,
-    deadlineDate TIMESTAMP,
+    title VARCHAR(255) NOT NULL DEFAULT '',
     taskDescription TEXT,
-    fun INTEGER CHECK (fun >= 0 AND fun <= 100),
-    difficulty INTEGER CHECK (difficulty >= 0 AND difficulty <= 100),
-    importance INTEGER CHECK (importance >= 0 AND importance <= 100),
-    time INTEGER CHECK (time >= 0 AND time <= 100),
+    deadlineDate TIMESTAMP,
+    fun VARCHAR(20) CHECK (fun IN ('low', 'medium', 'high')),
+    difficulty VARCHAR(20) CHECK (difficulty IN ('low', 'medium', 'high')),
+    importance VARCHAR(20) CHECK (importance IN ('low', 'medium', 'high')),
+    time VARCHAR(20) CHECK (time IN ('short', 'medium', 'long')),
     isFinished BOOLEAN DEFAULT FALSE,
+    isPinned BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE,
     FOREIGN KEY (categoryID) REFERENCES Categories(categoryID) ON DELETE SET NULL
 );
@@ -48,6 +50,7 @@ CREATE INDEX idx_tasks_user_id ON Tasks(userID);
 CREATE INDEX idx_tasks_category_id ON Tasks(categoryID);
 CREATE INDEX idx_tasks_deadline ON Tasks(deadlineDate);
 CREATE INDEX idx_tasks_finished ON Tasks(isFinished);
+CREATE INDEX idx_tasks_pinned ON Tasks(isPinned);
 
 -- Optional: Insert sample data
 INSERT INTO Users (email, hashedPassword, username) VALUES
@@ -64,8 +67,8 @@ INSERT INTO Categories (userID, categoryName) VALUES
 (2,'Work'), -- 3
 (2,'Health'); -- 4
 
-INSERT INTO Tasks (userID, categoryID, taskDescription, deadlineDate, fun, difficulty, importance, time, isFinished) VALUES
-(1, 1, 'Implement user authentication system', '2024-12-31 18:00:00', 70, 80, 90, 60, false),
-(1, 2, 'Buy groceries for the week', '2024-12-20 20:00:00', 30, 20, 60, 60, false),
-(2, 3, 'Weekly team meeting', '2024-12-18 10:00:00', 50, 30, 80, 60, true),
-(2, 4, 'Morning workout session', '2024-12-19 07:00:00', 80, 60, 70, 45, false);
+INSERT INTO Tasks (userID, categoryID, title, taskDescription, deadlineDate, fun, difficulty, importance, time, isFinished, isPinned) VALUES
+(1, 1, 'Implement user authentication system', 'Implement user authentication system', '2024-12-31 18:00:00', 'high', 'high', 'high', 'long', false, false),
+(1, 2, 'Buy groceries for the week', 'Buy groceries for the week', '2024-12-20 20:00:00', 'low', 'low', 'medium', 'long', false, false),
+(2, 3, 'Weekly team meeting', 'Weekly team meeting', '2024-12-18 10:00:00', 'medium', 'low', 'high', 'long', true, false),
+(2, 4, 'Morning workout session', 'Morning workout session', '2024-12-19 07:00:00', 'high', 'medium', 'high', 'medium', false, true);

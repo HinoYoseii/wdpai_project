@@ -12,7 +12,9 @@ class TaskRepository extends Repository
     public function getTasks(): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM tasks;
+            SELECT t.*, c.categoryname 
+            FROM tasks t
+            LEFT JOIN categories c ON t.categoryid = c.categoryid
         ');
         $stmt->execute();
 
@@ -24,7 +26,11 @@ class TaskRepository extends Repository
     public function getTasksByUserId(int $userId): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM tasks WHERE userid = :userId ORDER BY deadlinedate ASC
+            SELECT t.*, c.categoryname 
+            FROM tasks t
+            LEFT JOIN categories c ON t.categoryid = c.categoryid
+            WHERE t.userid = :userId 
+            ORDER BY t.ispinned DESC, t.deadlinedate ASC
         ');
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
@@ -37,7 +43,10 @@ class TaskRepository extends Repository
     public function getTask(int $taskId): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM tasks WHERE taskid = :taskId
+            SELECT t.*, c.categoryname 
+            FROM tasks t
+            LEFT JOIN categories c ON t.categoryid = c.categoryid
+            WHERE t.taskid = :taskId
         ');
         $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
         $stmt->execute();
@@ -54,7 +63,11 @@ class TaskRepository extends Repository
     public function getTasksByCategory(int $categoryId): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM tasks WHERE categoryid = :categoryId ORDER BY deadlinedate ASC
+            SELECT t.*, c.categoryname 
+            FROM tasks t
+            LEFT JOIN categories c ON t.categoryid = c.categoryid
+            WHERE t.categoryid = :categoryId 
+            ORDER BY t.ispinned DESC, t.deadlinedate ASC
         ');
         $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
         $stmt->execute();
@@ -67,7 +80,11 @@ class TaskRepository extends Repository
     public function getUnfinishedTasks(int $userId): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM tasks WHERE userid = :userId AND isfinished = FALSE ORDER BY deadlinedate ASC
+            SELECT t.*, c.categoryname 
+            FROM tasks t
+            LEFT JOIN categories c ON t.categoryid = c.categoryid
+            WHERE t.userid = :userId AND t.isfinished = FALSE 
+            ORDER BY t.ispinned DESC, t.deadlinedate ASC
         ');
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
@@ -80,7 +97,11 @@ class TaskRepository extends Repository
     public function getFinishedTasks(int $userId): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM tasks WHERE userid = :userId AND isfinished = TRUE ORDER BY deadlinedate DESC
+            SELECT t.*, c.categoryname 
+            FROM tasks t
+            LEFT JOIN categories c ON t.categoryid = c.categoryid
+            WHERE t.userid = :userId AND t.isfinished = TRUE 
+            ORDER BY t.deadlinedate DESC
         ');
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
@@ -94,20 +115,22 @@ class TaskRepository extends Repository
         int $userId,
         ?int $categoryId,
         ?string $deadlineDate,
-        string $taskDescription,
-        int $fun,
-        int $difficulty,
-        int $importance,
-        int $time
+        string $title,
+        ?string $taskDescription,
+        string $fun,
+        string $difficulty,
+        string $importance,
+        string $time
     ): void {
         $stmt = $this->database->connect()->prepare('
-            INSERT INTO tasks (userid, categoryid, deadlinedate, taskdescription, fun, difficulty, importance, time) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO tasks (userid, categoryid, deadlinedate, title, taskdescription, fun, difficulty, importance, time) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ');
         $stmt->execute([
             $userId,
             $categoryId,
             $deadlineDate,
+            $title,
             $taskDescription,
             $fun,
             $difficulty,
@@ -120,20 +143,22 @@ class TaskRepository extends Repository
         int $taskId,
         ?int $categoryId,
         ?string $deadlineDate,
-        string $taskDescription,
-        int $fun,
-        int $difficulty,
-        int $importance,
-        int $time
+        string $title,
+        ?string $taskDescription,
+        string $fun,
+        string $difficulty,
+        string $importance,
+        string $time
     ): void {
         $stmt = $this->database->connect()->prepare('
             UPDATE tasks 
-            SET categoryid = ?, deadlinedate = ?, taskdescription = ?, fun = ?, difficulty = ?, importance = ?, time = ?
+            SET categoryid = ?, deadlinedate = ?, title = ?, taskdescription = ?, fun = ?, difficulty = ?, importance = ?, time = ?
             WHERE taskid = ?
         ');
         $stmt->execute([
             $categoryId,
             $deadlineDate,
+            $title,
             $taskDescription,
             $fun,
             $difficulty,
@@ -157,6 +182,16 @@ class TaskRepository extends Repository
         $stmt = $this->database->connect()->prepare('
             UPDATE tasks SET isfinished = FALSE WHERE taskid = :taskId
         ');
+        $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateTaskPinStatus(int $taskId, bool $isPinned): void
+    {
+        $stmt = $this->database->connect()->prepare('
+            UPDATE tasks SET ispinned = :isPinned WHERE taskid = :taskId
+        ');
+        $stmt->bindParam(':isPinned', $isPinned, PDO::PARAM_BOOL);
         $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
         $stmt->execute();
     }

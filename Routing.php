@@ -51,6 +51,42 @@ class Routing {
         'deleteCategory' => [
             'controller' => "CategoriesController",
             'action' => 'deleteCategory'
+        ],
+        'getTasks' => [
+            'controller' => 'DashboardController',
+            'action' => 'getTasks'
+        ],
+        'getFinishedTasks' => [
+            'controller' => 'DashboardController',
+            'action' => 'getFinishedTasks'
+        ],
+        'getTask' => [
+            'controller' => 'DashboardController',
+            'action' => 'getTask'
+        ],
+        'createTask' => [
+            'controller' => 'DashboardController',
+            'action' => 'createTask'
+        ],
+        'updateTask' => [
+            'controller' => 'DashboardController',
+            'action' => 'updateTask'
+        ],
+        'deleteTask' => [
+            'controller' => 'DashboardController',
+            'action' => 'deleteTask'
+        ],
+        'finishTask' => [
+            'controller' => 'DashboardController',
+            'action' => 'finishTask'
+        ],
+        'unfinishTask' => [
+            'controller' => 'DashboardController',
+            'action' => 'unfinishTask'
+        ],
+        'pinTask' => [
+            'controller' => 'DashboardController',
+            'action' => 'pinTask'
         ]
     ];
 

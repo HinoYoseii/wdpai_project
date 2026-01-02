@@ -120,7 +120,7 @@ h1{
     flex-direction: column;
     gap: 20px;
 }
-
+/* 
 .list-item {
     background-color: #EDEDEE;
     display: flex;
@@ -128,7 +128,7 @@ h1{
     gap: 20px;
     padding: 8px 20px;
     box-shadow: 0px 4px 5px 0px rgba(18, 1, 1, 0.20);
-}
+} */
 
 .action-buttons{
     display: flex;
@@ -233,4 +233,345 @@ label {
 
 .modal h1{
     text-align: center;
+}
+
+/* Mobile-Friendly Task Management Styles */
+
+.filters-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    min-width: 150px;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-select.mobile-friendly {
+    background: white;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* List Item Styles */
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    box-shadow: 0px 4px 5px 0px rgba(18, 1, 1, 0.20);
+    transition: all 0.2s;
+}
+
+.list-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-color: #ccc;
+}
+
+.list-item .content {
+    flex: 1;
+    min-width: 0;
+}
+
+.list-item .title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: #222;
+}
+
+.list-item .description {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0.25rem 0;
+}
+
+.list-item .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.menu-btn:hover {
+    background: #f0f0f0;
+}
+
+.menu-btn:active {
+    background: #e0e0e0;
+}
+
+.list-icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 2rem;
+    border: 1px solid #888;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-content.modal-small {
+    max-width: 400px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.empty-message,
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.error-message {
+    color: #dc3545;
+}
+
+.list-item{
+    min-height:50px;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.form-actions button{
+    width: 100%;
+}
+
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .filters-section {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .filter-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-select {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .list-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .list-item .action-buttons {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .modal-content {
+        margin: 10% auto;
+        padding: 1.5rem;
+        width: 95%;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .list-item .title {
+        font-size: 1rem;
+    }
+    
+    .list-item .description {
+        font-size: 0.85rem;
+    }
+    
+    .list-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .form-input,
+    .form-textarea,
+    .form-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
 }

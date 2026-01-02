@@ -23,39 +23,121 @@
     </nav>
     <div class="main-container">
         <div class="header-section">
-            <h1>TODO</h1>
-            <button class="add-btn" id="addTaskBtn">+ Dodaj zadanie</button>
+            <h1>Kategorie</h1>
+            <button class="add-btn" id="addTaskBtn">+ Dodaj kategorię</button>
         </div>
         <hr class="divider">
-        <div class="list" id="todoList">
-            <p class="loading-message">Ładowanie zadań...</p>
+        <div class="filters-section">
+            <div class="filter-group">
+                <label for="categoryFilter">Kategoria:</label>
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">Wszystkie kategorie</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="finishedToggle">
+                    <span>Pokaż ukończone</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="todoList" class="list-container">
+            <!-- Tasks will be loaded here -->
         </div>
     </div>
 
-    <div id="addModal" class="modal">
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
         <div class="modal-content">
-            <h1 id="modalTitle">Dodaj zadanie</h1>
-            <form id="addForm">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Dodaj zadanie</h2>
+            <form id="taskForm">
                 <input type="hidden" id="taskId">
-                <label for="taskName" class="label">Nazwa zadania</label>
-                <input type="text" id="taskName" name="taskName" required maxlength="255">
-                <div class="form-actions">
-                    <button type="submit" class="submit-btn">Zapisz</button>
-                    <button type="button" class="cancel-btn" id="cancelBtn">Anuluj</button>
+                
+                <div class="form-group">
+                    <label for="taskTitle">Tytuł zadania *</label>
+                    <input type="text" id="taskTitle" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDescription">Opis</label>
+                    <textarea id="taskDescription" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskCategory">Kategoria</label>
+                    <select id="taskCategory" class="form-select">
+                        <option value="">Bez kategorii</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDeadline">Termin</label>
+                    <input type="datetime-local" id="taskDeadline" class="form-input">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskFun">Jak bardzo chcę to robić?</label>
+                        <select id="taskFun" class="form-select mobile-friendly">
+                            <option value="low">Niezbyt</option>
+                            <option value="medium" selected>Średnio</option>
+                            <option value="high">Bardzo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskDifficulty">Jak trudne jest to do zrobienia?</label>
+                        <select id="taskDifficulty" class="form-select mobile-friendly">
+                            <option value="low">Niezbyt</option>
+                            <option value="medium" selected>Średnio</option>
+                            <option value="high">Bardzo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskImportance">Jak istotne to jest do zrobienia?</label>
+                        <select id="taskImportance" class="form-select mobile-friendly">
+                            <option value="low">Niezbyt</option>
+                            <option value="medium" selected>Średnio</option>
+                            <option value="high">Bardzo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskTime">Jak długo mi zajmie zrobienie tego?</label>
+                        <select id="taskTime" class="form-select mobile-friendly">
+                            <option value="short">Krótko</option>
+                            <option value="medium" selected>Średnio</option>
+                            <option value="long">Długo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Zapisz</button>
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">Anuluj</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <h1>Potwierdzenie usunięcia</h1>
+        <div class="modal-content modal-small">
+            <h2>Potwierdź usunięcie</h2>
             <p>Czy na pewno chcesz usunąć to zadanie?</p>
-            <div class="form-actions">
-                <button class="submit-btn" id="confirmDeleteBtn">Usuń</button>
-                <button class="cancel-btn" id="cancelDeleteBtn">Anuluj</button>
+            <div class="modal-actions">
+                <button id="confirmDeleteBtn" class="btn btn-danger">Usuń</button>
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Anuluj</button>
             </div>
         </div>
     </div>
+
+    <script src="public/js/dashboard.js"></script>
 </body>
 </html>

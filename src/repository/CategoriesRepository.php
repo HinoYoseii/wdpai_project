@@ -11,7 +11,7 @@ class CategoriesRepository extends Repository
         return self::$instance ??= new CategoriesRepository(); 
     }
 
-    public function getUserCategories(int $userId): ?array
+    public function getCategoriesByUserId(int $userId): ?array
     {
         $stmt = $this->database->connect()->prepare('
             SELECT * FROM categories WHERE userid = :userId ORDER BY categoryname ASC

@@ -48,7 +48,7 @@ class CategoriesController extends AppController {
             }
 
             $userId = $user['userid'];
-            $categories = $this->categoriesRepository->getUserCategories($userId);
+            $categories = $this->categoriesRepository->getCategoriesByUserId($userId);
 
             http_response_code(200);
             echo json_encode([
