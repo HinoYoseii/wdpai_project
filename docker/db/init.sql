@@ -36,7 +36,6 @@ CREATE TABLE Tasks (
 CREATE TABLE UserPreferences (
     userID INTEGER PRIMARY KEY,
     bio TEXT,
-    deleteFinishedTasks BOOLEAN DEFAULT FALSE,
     funInfluence DECIMAL(3,2) DEFAULT 1.0,
     difficultyInfluence DECIMAL(3,2) DEFAULT 1.0,
     importanceInfluence DECIMAL(3,2) DEFAULT 1.0,
@@ -58,8 +57,8 @@ INSERT INTO Users (email, hashedPassword, username) VALUES
 ('jane@example.com', '$2y$10$RgMy.4kAcKqSOTusL.fq9OJGHlH85mdRXeEKixz462T9WEboHEmU6', 'jane_smith');
 
 INSERT INTO UserPreferences (userID, bio, deleteFinishedTasks) VALUES
-(1, 'Software developer who loves productivity apps', false),
-(2, 'Project manager focused on task optimization', true);
+(1, 'Software developer who loves productivity apps'),
+(2, 'Project manager focused on task optimization');
 
 INSERT INTO Categories (userID, categoryName) VALUES
 (1,'Work'), -- 1

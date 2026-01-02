@@ -3,19 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="public/styles/main.css">
-    <link rel="stylesheet" type="text/css" href="public/styles/navbar.css">
-    <link rel="stylesheet" type="text/css" href="public/styles/login.css">
+
+    <link rel="stylesheet" href="public/styles/base/variables.css">
+    <link rel="stylesheet" href="public/styles/base/reset.css">
+    <link rel="stylesheet" href="public/styles/base/typography.css">
+    <link rel="stylesheet" href="public/styles/base/responsive.css">
+    <link rel="stylesheet" href="public/styles/components/buttons.css">
+    <link rel="stylesheet" href="public/styles/components/forms.css">
+    <link rel="stylesheet" href="public/styles/components/modals.css">
+    <link rel="stylesheet" href="public/styles/components/navbar.css">
+    <link rel="stylesheet" href="public/styles/components/list-items.css">
+    <link rel="stylesheet" href="public/styles/layouts/main-container.css">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Register</title>
 </head>
-<body>
+<body class="main-container-center">
     <nav class="small">
         <a href="\dashboard">Unihub</a>
     </nav>
-    <form action="\register" method="POST">
+    <form class="small-form" action="\register" method="POST">
         <?php if(isset($messages)): ?>
             <p class="message">
                 <?= $messages; ?>

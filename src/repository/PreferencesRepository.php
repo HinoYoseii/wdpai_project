@@ -38,7 +38,6 @@ class PreferencesRepository extends Repository
         return new Preferences(
             $prefs['userid'],
             $prefs['bio'],
-            $prefs['deletefinishedtasks'],
             (float)$prefs['funinfluence'],
             (float)$prefs['difficultyinfluence'],
             (float)$prefs['importanceinfluence'],
@@ -50,7 +49,6 @@ class PreferencesRepository extends Repository
     public function createPreferences(
         int $userId,
         ?string $bio = null,
-        bool $deleteFinishedTasks = false,
         float $funInfluence = 1.0,
         float $difficultyInfluence = 1.0,
         float $importanceInfluence = 1.0,
@@ -59,13 +57,12 @@ class PreferencesRepository extends Repository
     ): void {
         $stmt = $this->database->connect()->prepare('
             INSERT INTO userpreferences 
-            (userid, bio, deletefinishedtasks, funinfluence, difficultyinfluence, importanceinfluence, timeinfluence, deadlineinfluence) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (userid, bio, funinfluence, difficultyinfluence, importanceinfluence, timeinfluence, deadlineinfluence) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         ');
         $stmt->execute([
             $userId,
             $bio,
-            $deleteFinishedTasks,
             $funInfluence,
             $difficultyInfluence,
             $importanceInfluence,
@@ -77,7 +74,6 @@ class PreferencesRepository extends Repository
     public function updatePreferences(
         int $userId,
         ?string $bio,
-        bool $deleteFinishedTasks,
         float $funInfluence,
         float $difficultyInfluence,
         float $importanceInfluence,
@@ -87,7 +83,6 @@ class PreferencesRepository extends Repository
         $stmt = $this->database->connect()->prepare('
             UPDATE userpreferences 
             SET bio = ?, 
-                deletefinishedtasks = ?, 
                 funinfluence = ?, 
                 difficultyinfluence = ?, 
                 importanceinfluence = ?, 
@@ -97,7 +92,6 @@ class PreferencesRepository extends Repository
         ');
         $stmt->execute([
             $bio,
-            $deleteFinishedTasks,
             $funInfluence,
             $difficultyInfluence,
             $importanceInfluence,
@@ -144,16 +138,6 @@ class PreferencesRepository extends Repository
         $stmt->execute([$bio, $userId]);
     }
 
-    public function updateDeleteFinishedTasks(int $userId, bool $deleteFinishedTasks): void
-    {
-        $stmt = $this->database->connect()->prepare('
-            UPDATE userpreferences 
-            SET deletefinishedtasks = ?
-            WHERE userid = ?
-        ');
-        $stmt->execute([$deleteFinishedTasks, $userId]);
-    }
-
     public function deletePreferences(int $userId): void
     {
         $stmt = $this->database->connect()->prepare('
@@ -175,7 +159,6 @@ class PreferencesRepository extends Repository
         return $result['count'] > 0;
     }
 
-    // Create default preferences for a new user if they don't exist
     public function ensurePreferencesExist(int $userId): void
     {
         if (!$this->preferencesExist($userId)) {

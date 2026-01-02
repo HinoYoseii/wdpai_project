@@ -174,7 +174,7 @@ function createTaskElement(task) {
     if (isFinished) {
         actionButtons = `
             <button class="menu-btn" onclick="unfinishTask(${task.taskid})" title="Przywróć zadanie">
-                <img src="public/assets/check.png" class="list-icon" alt="ikona">
+                <img src="public/assets/undo.png" class="list-icon" alt="ikona">
             </button>
             <button class="menu-btn" onclick="deleteTask(${task.taskid})" title="Usuń permanentnie">
                 <img src="public/assets/delete.png" class="list-icon" alt="ikona">

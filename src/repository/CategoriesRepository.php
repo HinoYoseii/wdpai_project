@@ -19,7 +19,7 @@ class CategoriesRepository extends Repository
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
 
-        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC); // Changed from fetch to fetchAll
+        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if ($categories == false || empty($categories)) {
             return null;
@@ -71,7 +71,7 @@ class CategoriesRepository extends Repository
         ');
         $stmt->execute([
             $categoryName,
-            $categoryId // Changed from userId to categoryId
+            $categoryId
         ]);
     }
 

@@ -1,32 +1,31 @@
-/* navbar.html */
 nav {
-    background-color: #4F517D;
-    font-family: 'Inconsolata', sans-serif;
+    background-color: var(--color-primary);
+    font-family: var(--font-secondary);
     padding: 10px 20px;
-    box-shadow: 0px 4px 5px 0px rgba(18, 1, 1, 0.20);
+    box-shadow: var(--shadow-light);
     z-index: 1;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width:90%;
+    width: 90%;
     margin-top: 2vh;
     height: 7vh;
     min-width: 300px;
 }
 
 nav > a {
-    color:white;
+    color: var(--color-white);
     font-size: 24px;
     margin: 0;
     text-decoration: none;
 }
 
 nav > a:hover {
-    color:white;
+    color: var(--color-white);
     text-decoration: none;
 }
 
-nav.small{
+nav.small {
     max-width: 400px;
     width: 90%;
     margin: 0px auto;
@@ -39,21 +38,13 @@ nav > ul {
     gap: 15px;
 }
 
-li > a{
-    color:white;
-    transition: color 0.3s ease;
+li > a {
+    color: var(--color-white);
+    transition: color var(--transition-normal);
     text-decoration: none;
 }
 
-li > a:hover{
-    color:white;
+li > a:hover {
+    color: var(--color-white);
     text-decoration: none;
-}
-
-@media (max-width: 480px) {
-    nav{
-        max-width: 480px;
-        width: 100%;
-        margin: 0;
-    }
 }

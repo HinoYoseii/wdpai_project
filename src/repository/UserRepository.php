@@ -103,7 +103,6 @@ class UserRepository extends Repository
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $userId = $result['userid'];
         
-        // Create default preferences for the new user
         $preferencesRepository = PreferencesRepository::getInstance();
         $preferencesRepository->createPreferences($userId);
         

@@ -1,0 +1,26 @@
+h1 {
+    font-family: var(--font-secondary);
+    color: var(--color-primary);
+}
+
+h1.error-title {
+    align-self: center;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    overflow: hidden;
+}
+
+.description {
+    font-size: 16px;
+    color: var(--color-gray-darker);
+    overflow: hidden;
+}
+
+.divider {
+    margin: 1vh 0 1vh 0;
+    border-top: 3px solid var(--color-gray);
+    border-radius: var(--border-radius-lg);
+}

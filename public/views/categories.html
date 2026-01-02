@@ -3,9 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="public/styles/main.css">
-    <link rel="stylesheet" type="text/css" href="public/styles/navbar.css">
-    <link rel="stylesheet" type="text/css" href="public/styles/categories.css">
+
+    <link rel="stylesheet" href="public/styles/base/variables.css">
+    <link rel="stylesheet" href="public/styles/base/reset.css">
+    <link rel="stylesheet" href="public/styles/base/typography.css">
+    <link rel="stylesheet" href="public/styles/base/responsive.css">
+    <link rel="stylesheet" href="public/styles/components/buttons.css">
+    <link rel="stylesheet" href="public/styles/components/forms.css">
+    <link rel="stylesheet" href="public/styles/components/modals.css">
+    <link rel="stylesheet" href="public/styles/components/navbar.css">
+    <link rel="stylesheet" href="public/styles/components/list-items.css">
+    <link rel="stylesheet" href="public/styles/layouts/main-container.css">
+    
     <script src="public/scripts/categories.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,12 +42,12 @@
     </div>
 
     <div id="categoryModal" class="modal">
-        <div class="modal-content">
-            <h1 id="modalTitle">Dodaj kategorię</h1>
-            <form id="categoryForm">
+        <div class="modal-content-form">
+            <form id="categoryForm" class="modal-form">
+                <h1 id="modalTitle">Dodaj kategorię</h1>
                 <input type="hidden" id="categoryId">
                 <label for="categoryName" class="label">Nazwa kategorii</label>
-                <input type="text" id="categoryName" name="categoryName" required maxlength="255">
+                <input type="text" id="categoryName" name="categoryName" placeholder="Podaj nazwę kategorii" required maxlength="255">
                 <div class="form-actions">
                     <button type="submit" class="submit-btn">Zapisz</button>
                     <button type="button" class="cancel-btn" id="cancelBtn">Anuluj</button>
@@ -48,7 +57,7 @@
     </div>
 
     <div id="deleteModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" class="modal-form">
             <h1>Potwierdzenie usunięcia</h1>
             <p>Czy na pewno chcesz usunąć tę kategorię?</p>
             <p class="warning">Uwaga: Wszystkie zadania w tej kategorii zostaną bez kategorii.</p>

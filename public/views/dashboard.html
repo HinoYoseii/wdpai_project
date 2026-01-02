@@ -3,9 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="public/styles/main.css">
-    <link rel="stylesheet" type="text/css" href="public/styles/dashboard.css">
-    <link rel="stylesheet" type="text/css" href="public/styles/navbar.css">
+
+    <link rel="stylesheet" href="public/styles/base/variables.css">
+    <link rel="stylesheet" href="public/styles/base/reset.css">
+    <link rel="stylesheet" href="public/styles/base/typography.css">
+    <link rel="stylesheet" href="public/styles/base/responsive.css">
+    <link rel="stylesheet" href="public/styles/components/buttons.css">
+    <link rel="stylesheet" href="public/styles/components/forms.css">
+    <link rel="stylesheet" href="public/styles/components/modals.css">
+    <link rel="stylesheet" href="public/styles/components/navbar.css">
+    <link rel="stylesheet" href="public/styles/components/list-items.css">
+    <link rel="stylesheet" href="public/styles/layouts/main-container.css">
+    
     <script src="public/scripts/dashboard.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,8 +32,8 @@
     </nav>
     <div class="main-container">
         <div class="header-section">
-            <h1>Kategorie</h1>
-            <button class="add-btn" id="addTaskBtn">+ Dodaj kategorię</button>
+            <h1>TODO</h1>
+            <button class="add-btn" id="addTaskBtn">+ Dodaj zadanie</button>
         </div>
         <hr class="divider">
         <div class="filters-section">
@@ -43,40 +52,29 @@
             </div>
         </div>
 
-        <div id="todoList" class="list-container">
-            <!-- Tasks will be loaded here -->
-        </div>
+        <div id="todoList" class="list"></div>
     </div>
 
     <!-- Task Modal -->
     <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="modalTitle">Dodaj zadanie</h2>
+        <div class="modal-content-form">
             <form id="taskForm">
+                <h1 id="modalTitle">Dodaj zadanie</h1>
                 <input type="hidden" id="taskId">
                 
-                <div class="form-group">
-                    <label for="taskTitle">Tytuł zadania *</label>
-                    <input type="text" id="taskTitle" class="form-input" required>
-                </div>
+                <label for="taskTitle">Tytuł zadania</label>
+                <input type="text" id="taskTitle" class="form-input" required>
 
-                <div class="form-group">
-                    <label for="taskDescription">Opis</label>
-                    <textarea id="taskDescription" class="form-textarea" rows="3"></textarea>
-                </div>
+                <label for="taskDescription">Opis</label>
+                <textarea id="taskDescription" class="form-textarea" rows="3"></textarea>
 
-                <div class="form-group">
-                    <label for="taskCategory">Kategoria</label>
-                    <select id="taskCategory" class="form-select">
-                        <option value="">Bez kategorii</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="taskDeadline">Termin</label>
-                    <input type="datetime-local" id="taskDeadline" class="form-input">
-                </div>
+                <label for="taskCategory">Kategoria</label>
+                <select id="taskCategory" class="form-select">
+                    <option value="">Bez kategorii</option>
+                </select>
+ 
+                <label for="taskDeadline">Termin</label>
+                <input type="datetime-local" id="taskDeadline" class="form-input">
 
                 <div class="form-row">
                     <div class="form-group">
@@ -118,9 +116,9 @@
                     </div>
                 </div>
 
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">Zapisz</button>
-                    <button type="button" id="cancelBtn" class="btn btn-secondary">Anuluj</button>
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Zapisz</button>
+                    <button type="button" id="cancelBtn" class="cancel-btn">Anuluj</button>
                 </div>
             </form>
         </div>
