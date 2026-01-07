@@ -28,6 +28,9 @@
     --color-error-text: #721c24;
     --color-info: #184182;
     --color-success: #4CAF50;
+    --color-success-bg: #e3f8d7;
+    --color-success-border: #d1f3be;
+    --color-success-text: #4CAF50;
     
     /* Shadows */
     --shadow-default: 0px 4px 13px 0px rgba(0, 0, 0, 0.25);

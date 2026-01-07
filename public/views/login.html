@@ -26,19 +26,25 @@
     <nav class="small">
         <a href="\dashboard">Unihub</a>
     </nav>
-    <form class="small-form" action="\login" method="POST">
+    <form class="form-default form-small" action="\login" method="POST">  
         <?php if(isset($messages)): ?>
             <p class="message">
                 <?= $messages; ?>
             </p>
         <?php endif; ?>
         
+        <?php if(isset($confirmation)): ?>
+            <p class="confirm">
+                <?= $confirmation; ?>
+            </p>
+        <?php endif; ?>    
+        
         <label for="email" class="label">E-mail</label>
         <input name="email" type="email" placeholder="Podaj e-mail">
         <label for="password">Hasło</label>
         <input name="password" type="password" placeholder="Podaj hasło">
         <input type="hidden" name="csrf" value="<?= $_SESSION['csrf'] ?>"> 
-        <a href="\register">Nie pamiętam hasła</a>
+        <!-- <a href="\register">Nie pamiętam hasła</a> -->
         
         <button class="submit-btn" type="submit">Zaloguj się</button>
 

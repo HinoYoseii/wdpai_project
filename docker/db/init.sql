@@ -1,4 +1,3 @@
--- Users table
 CREATE TABLE Users (
     userID SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -6,7 +5,6 @@ CREATE TABLE Users (
     username VARCHAR(100) UNIQUE NOT NULL
 );
 
--- Categories table
 CREATE TABLE Categories (
     categoryID SERIAL PRIMARY KEY,
     userID INTEGER NOT NULL,
@@ -14,7 +12,6 @@ CREATE TABLE Categories (
     FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
 );
 
--- Tasks table with updated structure
 CREATE TABLE Tasks (
     taskID SERIAL PRIMARY KEY,
     userID INTEGER NOT NULL,
@@ -32,7 +29,6 @@ CREATE TABLE Tasks (
     FOREIGN KEY (categoryID) REFERENCES Categories(categoryID) ON DELETE SET NULL
 );
 
--- UserPreferences table
 CREATE TABLE UserPreferences (
     userID INTEGER PRIMARY KEY,
     bio TEXT,
@@ -44,19 +40,17 @@ CREATE TABLE UserPreferences (
     FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
 );
 
--- Create indexes for better performance
 CREATE INDEX idx_tasks_user_id ON Tasks(userID);
 CREATE INDEX idx_tasks_category_id ON Tasks(categoryID);
 CREATE INDEX idx_tasks_deadline ON Tasks(deadlineDate);
 CREATE INDEX idx_tasks_finished ON Tasks(isFinished);
 CREATE INDEX idx_tasks_pinned ON Tasks(isPinned);
 
--- Optional: Insert sample data
 INSERT INTO Users (email, hashedPassword, username) VALUES
 ('john@example.com', '$2y$10$RgMy.4kAcKqSOTusL.fq9OJGHlH85mdRXeEKixz462T9WEboHEmU6', 'john_doe'),
 ('jane@example.com', '$2y$10$RgMy.4kAcKqSOTusL.fq9OJGHlH85mdRXeEKixz462T9WEboHEmU6', 'jane_smith');
 
-INSERT INTO UserPreferences (userID, bio, deleteFinishedTasks) VALUES
+INSERT INTO UserPreferences (userID, bio) VALUES
 (1, 'Software developer who loves productivity apps'),
 (2, 'Project manager focused on task optimization');
 

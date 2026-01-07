@@ -1,5 +1,5 @@
 /* Form Container */
-form{ 
+.form-default{ 
     margin: 0px auto;
     padding: 40px;
     background-color: var(--color-white);
@@ -9,7 +9,7 @@ form{
     gap: 2vh;
 }
 
-.small-form {
+.form-small {
     min-width: 300px;
     width: 90%;
     max-width: 400px;
@@ -84,6 +84,16 @@ option{
     color: var(--color-error-text);
     padding: 12px;
     border: 1px solid var(--color-error-border);
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.confirm{
+    background-color: var(--color-success-bg);
+    color: var(--color-success-text);
+    padding: 12px;
+    border: 1px solid var(--color-success-border);
     font-size: 14px;
     text-align: center;
     margin-bottom: 20px;

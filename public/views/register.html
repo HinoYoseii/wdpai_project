@@ -24,7 +24,7 @@
     <nav class="small">
         <a href="\dashboard">Unihub</a>
     </nav>
-    <form class="small-form" action="\register" method="POST">
+    <form class="form-default small-form" action="\register" method="POST">
         <?php if(isset($messages)): ?>
             <p class="message">
                 <?= $messages; ?>
@@ -39,6 +39,7 @@
         <input name="password2" type="password" placeholder="Powtórz hasło">
         <label for="username">Nazwa użytkownika</label>
         <input name="username" type="text" placeholder="Podaj nazwę użytkownika">
+        <input type="hidden" name="csrf" value="<?= $_SESSION['csrf'] ?>"> 
 
         <button class="submit-btn" type="submit">Stwórz moje konto</button>
         <a href="\login">Masz już konto? Zaloguj się!</a>
