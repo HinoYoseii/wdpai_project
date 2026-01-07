@@ -56,83 +56,79 @@
     </div>
 
     <div id="taskModal" class="modal">
-        <div class="modal-content-form">
-            <form class="form-default" id="taskForm">
-                <h1 id="modalTitle">Dodaj zadanie</h1>
-                <input type="hidden" id="taskId">
-                
-                <label for="taskTitle">Tytuł zadania</label>
-                <input type="text" id="taskTitle" class="form-input" required>
+        <form class="modal-content-form" id="taskForm">
+            <h1 id="modalTitle">Dodaj zadanie</h1>
+            <input type="hidden" id="taskId">
+            
+            <label for="taskTitle">Tytuł zadania</label>
+            <input type="text" id="taskTitle" class="form-input" required>
 
-                <label for="taskDescription">Opis</label>
-                <textarea id="taskDescription" class="form-textarea" rows="3"></textarea>
+            <label for="taskDescription">Opis</label>
+            <textarea id="taskDescription" class="form-textarea" rows="3"></textarea>
 
-                <label for="taskCategory">Kategoria</label>
-                <select id="taskCategory" class="form-select">
-                    <option value="">Bez kategorii</option>
-                </select>
+            <label for="taskCategory">Kategoria</label>
+            <select id="taskCategory" class="form-select">
+                <option value="">Bez kategorii</option>
+            </select>
  
-                <label for="taskDeadline">Termin</label>
-                <input type="datetime-local" id="taskDeadline" class="form-input">
+            <label for="taskDeadline">Termin</label>
+            <input type="datetime-local" id="taskDeadline" class="form-input">
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="taskFun">Jak bardzo chcę to robić?</label>
-                        <select id="taskFun" class="form-select mobile-friendly">
-                            <option value="low">Niezbyt</option>
-                            <option value="medium" selected>Średnio</option>
-                            <option value="high">Bardzo</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="taskDifficulty">Jak trudne jest to do zrobienia?</label>
-                        <select id="taskDifficulty" class="form-select mobile-friendly">
-                            <option value="low">Niezbyt</option>
-                            <option value="medium" selected>Średnio</option>
-                            <option value="high">Bardzo</option>
-                        </select>
-                    </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="taskFun">Jak bardzo chcę to robić?</label>
+                    <select id="taskFun" class="form-select mobile-friendly">
+                        <option value="low">Niezbyt</option>
+                        <option value="medium" selected>Średnio</option>
+                        <option value="high">Bardzo</option>
+                    </select>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="taskImportance">Jak istotne to jest do zrobienia?</label>
-                        <select id="taskImportance" class="form-select mobile-friendly">
-                            <option value="low">Niezbyt</option>
-                            <option value="medium" selected>Średnio</option>
-                            <option value="high">Bardzo</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="taskDifficulty">Jak trudne jest to do zrobienia?</label>
+                    <select id="taskDifficulty" class="form-select mobile-friendly">
+                        <option value="low">Niezbyt</option>
+                        <option value="medium" selected>Średnio</option>
+                        <option value="high">Bardzo</option>
+                    </select>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        <label for="taskTime">Jak długo mi zajmie zrobienie tego?</label>
-                        <select id="taskTime" class="form-select mobile-friendly">
-                            <option value="short">Krótko</option>
-                            <option value="medium" selected>Średnio</option>
-                            <option value="long">Długo</option>
-                        </select>
-                    </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="taskImportance">Jak istotne to jest do zrobienia?</label>
+                    <select id="taskImportance" class="form-select mobile-friendly">
+                        <option value="low">Niezbyt</option>
+                        <option value="medium" selected>Średnio</option>
+                        <option value="high">Bardzo</option>
+                    </select>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="submit-btn">Zapisz</button>
-                    <button type="button" id="cancelBtn" class="cancel-btn">Anuluj</button>
+                <div class="form-group">
+                    <label for="taskTime">Jak długo mi zajmie zrobienie tego?</label>
+                    <select id="taskTime" class="form-select mobile-friendly">
+                        <option value="short">Krótko</option>
+                        <option value="medium" selected>Średnio</option>
+                        <option value="long">Długo</option>
+                    </select>
                 </div>
-            </form>
-        </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Zapisz</button>
+                <button type="button" id="cancelBtn" class="cancel-btn">Anuluj</button>
+            </div>
+        </form>
     </div>
 
     <div id="deleteModal" class="modal">
         <div class="modal-content-form">
-            <form class="form-default">
-                <h1>Potwierdź usunięcie</h1>
-                <p>Czy na pewno chcesz usunąć to zadanie?</p>
-                <div class="form-actions">
-                    <button class="submit-btn" id="confirmDeleteBtn">Usuń</button>
-                    <button class="cancel-btn" id="cancelDeleteBtn">Anuluj</button>
-                </div>
-            </form>
+            <h1>Potwierdź usunięcie</h1>
+            <p>Czy na pewno chcesz usunąć to zadanie?</p>
+            <div class="form-actions">
+                <button class="submit-btn" id="confirmDeleteBtn">Usuń</button>
+                <button class="cancel-btn" id="cancelDeleteBtn">Anuluj</button>
+            </div>
         </div>
     </div>
 

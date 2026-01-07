@@ -14,18 +14,14 @@ class CategoriesRepository extends Repository
     public function getCategoriesByUserId(int $userId): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM categories WHERE userid = :userId ORDER BY categoryname ASC
+            SELECT * FROM categories 
+            WHERE userid = :userId 
+            ORDER BY categoryname ASC
         ');
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
 
-        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if ($categories == false || empty($categories)) {
-            return null;
-        }
-
-        return $categories;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: null;
     }
 
     public function getCategory(int $categoryId): ?array
@@ -36,43 +32,26 @@ class CategoriesRepository extends Repository
         $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
         $stmt->execute();
 
-        $category = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($category == false) {
-            return null;
-        }
-
-        return $category;
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function createCategory(
-        int $userId,
-        string $categoryName
-    ): void {
+    public function createCategory(int $userId, string $categoryName): void
+    {
         $stmt = $this->database->connect()->prepare('
-            INSERT INTO categories
-            (userid, categoryname)
+            INSERT INTO categories (userid, categoryname)
             VALUES (?, ?)
         ');
-        $stmt->execute([
-            $userId,
-            $categoryName
-        ]);
+        $stmt->execute([$userId, $categoryName]);
     }
 
-    public function updateCategory(
-        int $categoryId,
-        string $categoryName
-    ): void {
+    public function updateCategory(int $categoryId, string $categoryName): void
+    {
         $stmt = $this->database->connect()->prepare('
             UPDATE categories
             SET categoryname = ?
             WHERE categoryid = ?
         ');
-        $stmt->execute([
-            $categoryName,
-            $categoryId
-        ]);
+        $stmt->execute([$categoryName, $categoryId]);
     }
 
     public function deleteCategory(int $categoryId): void
@@ -87,7 +66,9 @@ class CategoriesRepository extends Repository
     public function categoryExists(int $categoryId, int $userId): bool
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT COUNT(*) as count FROM categories WHERE categoryid = :categoryId AND userid = :userId
+            SELECT COUNT(*) as count 
+            FROM categories 
+            WHERE categoryid = :categoryId AND userid = :userId
         ');
         $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
