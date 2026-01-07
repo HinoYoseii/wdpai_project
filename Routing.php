@@ -1,15 +1,24 @@
 <?php
-
 require_once 'src/controllers/SecurityController.php';
 require_once 'src/controllers/DashboardController.php';
 require_once 'src/controllers/CategoriesController.php';
 require_once 'src/controllers/AccountController.php';
 
 class Routing {
+    private static ?Routing $instance = null;
 
-    public static $routes = [
+    public static function getInstance(): Routing
+    {
+        if (self::$instance === null) {
+            self::$instance = new Routing();
+        }
+        return self::$instance;
+    }
+
+
+    private static array $routes = [
         'login' => [
-            'controller' => "SecurityController",
+            'controller' => 'SecurityController',
             'action' => 'login'
         ],
         'register' => [
@@ -21,40 +30,36 @@ class Routing {
             'action' => 'logout'
         ],
         'dashboard' => [
-            'controller' => "DashboardController",
+            'controller' => 'DashboardController',
             'action' => 'dashboard'
         ],
         'categories' => [
-            'controller' => "CategoriesController",
+            'controller' => 'CategoriesController',
             'action' => 'categories'
         ],
         'account' => [
-            'controller' => "AccountController",
+            'controller' => 'AccountController',
             'action' => 'account'
-        ],
-        'getTasks' => [
-            'controller' => "DashboardController",
-            'action' => 'getTasks'
-        ],
-        'getCategories' => [
-            'controller' => "CategoriesController",
-            'action' => 'getCategories'
-        ],
-        'createCategory' => [
-            'controller' => "CategoriesController",
-            'action' => 'createCategory'
-        ],
-        'updateCategory' => [
-            'controller' => "CategoriesController",
-            'action' => 'updateCategory'
-        ],
-        'deleteCategory' => [
-            'controller' => "CategoriesController",
-            'action' => 'deleteCategory'
         ],
         'getTasks' => [
             'controller' => 'DashboardController',
             'action' => 'getTasks'
+        ],
+        'getCategories' => [
+            'controller' => 'CategoriesController',
+            'action' => 'getCategories'
+        ],
+        'createCategory' => [
+            'controller' => 'CategoriesController',
+            'action' => 'createCategory'
+        ],
+        'updateCategory' => [
+            'controller' => 'CategoriesController',
+            'action' => 'updateCategory'
+        ],
+        'deleteCategory' => [
+            'controller' => 'CategoriesController',
+            'action' => 'deleteCategory'
         ],
         'getFinishedTasks' => [
             'controller' => 'DashboardController',
@@ -90,18 +95,35 @@ class Routing {
         ]
     ];
 
-    public static function run(string $path) {
-        switch ($path) {
-            case in_array($path, array_keys(Routing::$routes)):
-                $controller = Routing::$routes[$path]['controller'];
-                $action = Routing::$routes[$path]['action'];
+    public function run(string $path) {
+        if (array_key_exists($path, self::$routes) && !isset(self::$routes[$path]['pattern'])) {
+            $controllerName = self::$routes[$path]['controller'];
+            $action         = self::$routes[$path]['action'];
 
-                $controllerObj = new $controller;
-                $controllerObj->$action();
-                break;
-            default:
-                include 'public/views/404.html';
-                break;
-        } 
+            $controller = new $controllerName();
+            $controller->$action();
+
+            return;
+        }
+
+        foreach (self::$routes as $route) {
+            if (!isset($route['pattern'])) {
+                continue;
+            }
+
+            if (preg_match($route['pattern'], $path, $matches)) {
+                $controllerName = $route['controller'];
+                $action         = $route['action'];
+
+                $controller = new $controllerName();
+
+                $params = array_slice($matches, 1);
+
+                $controller->$action(...$params);
+                return;
+            }
+        }
+
+        include 'public/views/404.html';
     }
 }

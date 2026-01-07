@@ -5,7 +5,6 @@ require_once __DIR__.'/../repository/UserRepository.php';
 require_once __DIR__.'/../repository/TaskRepository.php';
 require_once __DIR__.'/../repository/PreferencesRepository.php';
 require_once __DIR__.'/../repository/CategoriesRepository.php';
-require_once __DIR__.'/../models/Preferences.php';
 
 class DashboardController extends AppController {
 
@@ -31,65 +30,73 @@ class DashboardController extends AppController {
         return $this->render("dashboard");
     }
 
+    // Helper methods
+    private function checkAuth(): ?array {
+        if(!isset($_SESSION['username'])){
+            http_response_code(401);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Unauthorized'
+            ]);
+            return null;
+        }
+
+        $user = $this->userRepository->getUserByUsername($_SESSION['username']);
+        if (!$user) {
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'User not found'
+            ]);
+            return null;
+        }
+
+        return $user;
+    }
+
+    private function getJsonInput(): ?array {
+        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+        
+        if ($contentType !== "application/json") {
+            return null;
+        }
+
+        $content = trim(file_get_contents("php://input"));
+        return json_decode($content, true);
+    }
+
+    private function jsonResponse(string $status, $data = null, string $message = '', int $httpCode = 200): void {
+        http_response_code($httpCode);
+        $response = ['status' => $status];
+        
+        if ($message) {
+            $response['message'] = $message;
+        }
+        
+        if ($data !== null) {
+            $response = array_merge($response, $data);
+        }
+        
+        echo json_encode($response);
+    }
+
+    // API endpoints
     public function getTasks() {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
-                return;
-            }
-
-            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-            if (!$user) {
-                http_response_code(404);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'User not found'
-                ]);
-                return;
-            }
+            $user = $this->checkAuth();
+            if (!$user) return;
 
             $userId = $user['userid'];
             $this->preferencesRepository->ensurePreferencesExist($userId);
 
             $tasks = $this->taskRepository->getUnfinishedTasks($userId);
+            $tasksWithScore = $this->calculateTaskPriorities($tasks ?: [], $userId);
 
-            if (!$tasks) {
-                http_response_code(200);
-                echo json_encode([
-                    'status' => 'success',
-                    'tasks' => []
-                ]);
-                return;
-            }
-
-            $tasksWithScore = $this->calculateTaskPriorities($tasks, $userId);
-
-            usort($tasksWithScore, function($a, $b) {
-                // Pinned tasks always come first
-                if ($a['ispinned'] && !$b['ispinned']) return -1;
-                if (!$a['ispinned'] && $b['ispinned']) return 1;
-                
-                // Then sort by priority score
-                return $b['priorityScore'] <=> $a['priorityScore'];
-            });
-
-            http_response_code(200);
-            echo json_encode([
-                'status' => 'success',
-                'tasks' => $tasksWithScore
-            ]);
+            $this->jsonResponse('success', ['tasks' => $tasksWithScore]);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -97,39 +104,14 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
-                return;
-            }
+            $user = $this->checkAuth();
+            if (!$user) return;
 
-            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-            if (!$user) {
-                http_response_code(404);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'User not found'
-                ]);
-                return;
-            }
+            $tasks = $this->taskRepository->getFinishedTasks($user['userid']);
 
-            $userId = $user['userid'];
-            $tasks = $this->taskRepository->getFinishedTasks($userId);
-
-            http_response_code(200);
-            echo json_encode([
-                'status' => 'success',
-                'tasks' => $tasks ?: []
-            ]);
+            $this->jsonResponse('success', ['tasks' => $tasks ?: []]);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -137,48 +119,25 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
-                return;
-            }
+            if (!$this->checkAuth()) return;
 
             $taskId = $_GET['taskId'] ?? null;
             
             if (!$taskId) {
-                http_response_code(400);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Task ID is required'
-                ]);
+                $this->jsonResponse('error', null, 'Task ID is required', 400);
                 return;
             }
 
             $task = $this->taskRepository->getTask((int)$taskId);
 
             if (!$task) {
-                http_response_code(404);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Task not found'
-                ]);
+                $this->jsonResponse('error', null, 'Task not found', 404);
                 return;
             }
 
-            http_response_code(200);
-            echo json_encode([
-                'status' => 'success',
-                'task' => $task
-            ]);
+            $this->jsonResponse('success', ['task' => $task]);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -186,72 +145,37 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
+            $user = $this->checkAuth();
+            if (!$user) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid request', 400);
                 return;
             }
 
-            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-            if (!$user) {
-                http_response_code(404);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'User not found'
-                ]);
+            $title = $data['title'] ?? '';
+
+            if (empty($title)) {
+                $this->jsonResponse('error', null, 'Title is required', 400);
                 return;
             }
 
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType === "application/json") {
-                $content = trim(file_get_contents("php://input"));
-                $decoded = json_decode($content, true);
+            $this->taskRepository->createTask(
+                $user['userid'],
+                $data['categoryId'] ?? null,
+                $data['deadlineDate'] ?? null,
+                $title,
+                $data['taskDescription'] ?? null,
+                $data['fun'] ?? 'medium',
+                $data['difficulty'] ?? 'medium',
+                $data['importance'] ?? 'medium',
+                $data['time'] ?? 'medium'
+            );
 
-                $title = $decoded['title'] ?? '';
-                $taskDescription = $decoded['taskDescription'] ?? null;
-                $categoryId = $decoded['categoryId'] ?? null;
-                $deadlineDate = $decoded['deadlineDate'] ?? null;
-                $fun = $decoded['fun'] ?? 'medium';
-                $difficulty = $decoded['difficulty'] ?? 'medium';
-                $importance = $decoded['importance'] ?? 'medium';
-                $time = $decoded['time'] ?? 'medium';
-
-                if (empty($title)) {
-                    http_response_code(400);
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Title is required'
-                    ]);
-                    return;
-                }
-
-                $this->taskRepository->createTask(
-                    $user['userid'],
-                    $categoryId,
-                    $deadlineDate,
-                    $title,
-                    $taskDescription,
-                    $fun,
-                    $difficulty,
-                    $importance,
-                    $time
-                );
-
-                http_response_code(200);
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Task created successfully'
-                ]);
-            }
+            $this->jsonResponse('success', null, 'Task created successfully');
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -259,63 +183,37 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
+            if (!$this->checkAuth()) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid request', 400);
                 return;
             }
 
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType === "application/json") {
-                $content = trim(file_get_contents("php://input"));
-                $decoded = json_decode($content, true);
+            $taskId = $data['taskId'] ?? null;
+            $title = $data['title'] ?? '';
 
-                $taskId = $decoded['taskId'] ?? null;
-                $title = $decoded['title'] ?? '';
-                $taskDescription = $decoded['taskDescription'] ?? null;
-                $categoryId = $decoded['categoryId'] ?? null;
-                $deadlineDate = $decoded['deadlineDate'] ?? null;
-                $fun = $decoded['fun'] ?? 'medium';
-                $difficulty = $decoded['difficulty'] ?? 'medium';
-                $importance = $decoded['importance'] ?? 'medium';
-                $time = $decoded['time'] ?? 'medium';
-
-                if (!$taskId || empty($title)) {
-                    http_response_code(400);
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Task ID and title are required'
-                    ]);
-                    return;
-                }
-
-                $this->taskRepository->updateTask(
-                    (int)$taskId,
-                    $categoryId,
-                    $deadlineDate,
-                    $title,
-                    $taskDescription,
-                    $fun,
-                    $difficulty,
-                    $importance,
-                    $time
-                );
-
-                http_response_code(200);
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Task updated successfully'
-                ]);
+            if (!$taskId || empty($title)) {
+                $this->jsonResponse('error', null, 'Task ID and title are required', 400);
+                return;
             }
+
+            $this->taskRepository->updateTask(
+                (int)$taskId,
+                $data['categoryId'] ?? null,
+                $data['deadlineDate'] ?? null,
+                $title,
+                $data['taskDescription'] ?? null,
+                $data['fun'] ?? 'medium',
+                $data['difficulty'] ?? 'medium',
+                $data['importance'] ?? 'medium',
+                $data['time'] ?? 'medium'
+            );
+
+            $this->jsonResponse('success', null, 'Task updated successfully');
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -323,45 +221,26 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
+            if (!$this->checkAuth()) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid request', 400);
                 return;
             }
 
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType === "application/json") {
-                $content = trim(file_get_contents("php://input"));
-                $decoded = json_decode($content, true);
+            $taskId = $data['taskId'] ?? null;
 
-                $taskId = $decoded['taskId'] ?? null;
-
-                if (!$taskId) {
-                    http_response_code(400);
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Task ID is required'
-                    ]);
-                    return;
-                }
-
-                $this->taskRepository->deleteTask((int)$taskId);
-
-                http_response_code(200);
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Task deleted successfully'
-                ]);
+            if (!$taskId) {
+                $this->jsonResponse('error', null, 'Task ID is required', 400);
+                return;
             }
+
+            $this->taskRepository->deleteTask((int)$taskId);
+
+            $this->jsonResponse('success', null, 'Task deleted successfully');
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -369,65 +248,36 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
+            $user = $this->checkAuth();
+            if (!$user) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid request', 400);
                 return;
             }
 
-            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-            if (!$user) {
-                http_response_code(404);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'User not found'
-                ]);
+            $taskId = $data['taskId'] ?? null;
+
+            if (!$taskId) {
+                $this->jsonResponse('error', null, 'Task ID is required', 400);
                 return;
             }
 
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType === "application/json") {
-                $content = trim(file_get_contents("php://input"));
-                $decoded = json_decode($content, true);
+            $preferences = $this->preferencesRepository->getPreferences($user['userid']);
+            $deleteFinished = $preferences['deletefinishedtasks'] ?? false;
 
-                $taskId = $decoded['taskId'] ?? null;
-
-                if (!$taskId) {
-                    http_response_code(400);
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Task ID is required'
-                    ]);
-                    return;
-                }
-
-                // Get user preferences to check if we should delete finished tasks
-                $preferences = $this->preferencesRepository->getPreferences($user['userid']);
-                $deleteFinished = $preferences['deletefinishedtasks'] ?? false;
-
-                if ($deleteFinished) {
-                    $this->taskRepository->deleteTask((int)$taskId);
-                    $message = 'Task deleted';
-                } else {
-                    $this->taskRepository->markTaskAsFinished((int)$taskId);
-                    $message = 'Task marked as finished';
-                }
-
-                http_response_code(200);
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => $message
-                ]);
+            if ($deleteFinished) {
+                $this->taskRepository->deleteTask((int)$taskId);
+                $message = 'Task deleted';
+            } else {
+                $this->taskRepository->markTaskAsFinished((int)$taskId);
+                $message = 'Task marked as finished';
             }
+
+            $this->jsonResponse('success', null, $message);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -435,45 +285,26 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
+            if (!$this->checkAuth()) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid request', 400);
                 return;
             }
 
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType === "application/json") {
-                $content = trim(file_get_contents("php://input"));
-                $decoded = json_decode($content, true);
+            $taskId = $data['taskId'] ?? null;
 
-                $taskId = $decoded['taskId'] ?? null;
-
-                if (!$taskId) {
-                    http_response_code(400);
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Task ID is required'
-                    ]);
-                    return;
-                }
-
-                $this->taskRepository->markTaskAsUnfinished((int)$taskId);
-
-                http_response_code(200);
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Task restored'
-                ]);
+            if (!$taskId) {
+                $this->jsonResponse('error', null, 'Task ID is required', 400);
+                return;
             }
+
+            $this->taskRepository->markTaskAsUnfinished((int)$taskId);
+
+            $this->jsonResponse('success', null, 'Task restored');
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -481,74 +312,45 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
+            if (!$this->checkAuth()) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid request', 400);
                 return;
             }
 
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType === "application/json") {
-                $content = trim(file_get_contents("php://input"));
-                $decoded = json_decode($content, true);
+            $taskId = $data['taskId'] ?? null;
+            $isPinned = $data['isPinned'] ?? false;
 
-                $taskId = $decoded['taskId'] ?? null;
-                $isPinned = $decoded['isPinned'] ?? false;
-
-                if (!$taskId) {
-                    http_response_code(400);
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Task ID is required'
-                    ]);
-                    return;
-                }
-
-                $this->taskRepository->updateTaskPinStatus((int)$taskId, (bool)$isPinned);
-
-                http_response_code(200);
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => $isPinned ? 'Task pinned' : 'Task unpinned'
-                ]);
+            if (!$taskId) {
+                $this->jsonResponse('error', null, 'Task ID is required', 400);
+                return;
             }
+
+            $this->taskRepository->updateTaskPinStatus((int)$taskId, (bool)$isPinned);
+
+            $this->jsonResponse('success', null, $isPinned ? 'Task pinned' : 'Task unpinned');
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
     private function calculateTaskPriorities(array $tasks, int $userId): array {
+        if (empty($tasks)) {
+            return [];
+        }
+
         $preferencesData = $this->preferencesRepository->getPreferences($userId);
 
-        if ($preferencesData) {
-            $preferences = [
-                'funInfluence' => (float)($preferencesData['funinfluence'] ?? 1.0),
-                'difficultyInfluence' => (float)($preferencesData['difficultyinfluence'] ?? 1.0),
-                'importanceInfluence' => (float)($preferencesData['importanceinfluence'] ?? 1.0),
-                'timeInfluence' => (float)($preferencesData['timeinfluence'] ?? 1.0),
-                'deadlineInfluence' => (float)($preferencesData['deadlineinfluence'] ?? 1.0)
-            ];
-        } else {
-            $preferences = [
-                'funInfluence' => 1.0,
-                'difficultyInfluence' => 1.0,
-                'importanceInfluence' => 1.0,
-                'timeInfluence' => 1.0,
-                'deadlineInfluence' => 1.0
-            ];
-        }
+        $preferences = [
+            'funInfluence' => (float)($preferencesData['funinfluence'] ?? 1.0),
+            'difficultyInfluence' => (float)($preferencesData['difficultyinfluence'] ?? 1.0),
+            'importanceInfluence' => (float)($preferencesData['importanceinfluence'] ?? 1.0),
+            'timeInfluence' => (float)($preferencesData['timeinfluence'] ?? 1.0),
+            'deadlineInfluence' => (float)($preferencesData['deadlineinfluence'] ?? 1.0)
+        ];
         
-        $tasksWithScore = [];
-        $currentTime = time();
-
-        // Convert text values to numeric scores
         $valueMap = [
             'low' => 33,
             'medium' => 66,
@@ -557,26 +359,24 @@ class DashboardController extends AppController {
             'long' => 100
         ];
 
+        $currentTime = time();
+        $tasksWithScore = [];
+
         foreach ($tasks as $task) {
             $score = 0;
 
-            // Fun factor (higher = more fun = higher priority)
             $funValue = $valueMap[$task['fun']] ?? 66;
             $score += $funValue * $preferences['funInfluence'];
 
-            // Difficulty (lower difficulty = higher priority)
             $difficultyValue = $valueMap[$task['difficulty']] ?? 66;
             $score += (100 - $difficultyValue) * $preferences['difficultyInfluence'];
 
-            // Importance (higher = higher priority)
             $importanceValue = $valueMap[$task['importance']] ?? 66;
             $score += $importanceValue * $preferences['importanceInfluence'];
 
-            // Time required (shorter = higher priority)
             $timeValue = $valueMap[$task['time']] ?? 66;
             $score += (100 - $timeValue) * $preferences['timeInfluence'];
 
-            // Deadline urgency
             if ($task['deadlinedate']) {
                 $deadlineTimestamp = strtotime($task['deadlinedate']);
                 $daysUntilDeadline = ($deadlineTimestamp - $currentTime) / (60 * 60 * 24);
@@ -601,6 +401,13 @@ class DashboardController extends AppController {
             $task['priorityScore'] = round($score, 2);
             $tasksWithScore[] = $task;
         }
+
+        // Sort: pinned first, then by priority score
+        usort($tasksWithScore, function($a, $b) {
+            if ($a['ispinned'] && !$b['ispinned']) return -1;
+            if (!$a['ispinned'] && $b['ispinned']) return 1;
+            return $b['priorityScore'] <=> $a['priorityScore'];
+        });
 
         return $tasksWithScore;
     }

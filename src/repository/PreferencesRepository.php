@@ -27,23 +27,14 @@ class PreferencesRepository extends Repository
         return $preferences;
     }
 
-    public function getPreferencesObject(int $userId): ?Preferences
-    {
+    public function getPreferencesObject(int $userId): ?array{
         $prefs = $this->getPreferences($userId);
 
         if (!$prefs) {
             return null;
         }
 
-        return new Preferences(
-            $prefs['userid'],
-            $prefs['bio'],
-            (float)$prefs['funinfluence'],
-            (float)$prefs['difficultyinfluence'],
-            (float)$prefs['importanceinfluence'],
-            (float)$prefs['timeinfluence'],
-            (float)$prefs['deadlineinfluence']
-        );
+        return $prefs;
     }
 
     public function createPreferences(

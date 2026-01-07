@@ -1,4 +1,3 @@
-/* Base Button Style */
 button {
     font-size: 16px;
     font-weight: 500;
@@ -7,7 +6,6 @@ button {
     transition: background-color var(--transition-normal);
 }
 
-/* Primary Buttons */
 .submit-btn {
     background-color: var(--color-primary);
     color: var(--color-white);
@@ -19,7 +17,6 @@ button {
     background-color: var(--color-primary-dark);
 }
 
-/* Secondary Buttons */
 .cancel-btn {
     background-color: var(--color-gray-medium);
     color: var(--color-white);
@@ -30,7 +27,6 @@ button {
     background-color: var(--color-gray-dark);
 }
 
-/* Special Buttons */
 .logout-btn {
     background-color: transparent;
     color: var(--color-danger);
@@ -73,41 +69,4 @@ button {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-}
-
-.btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: var(--border-radius-sm);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-weight: 500;
-}
-
-.btn-primary {
-    background: var(--color-primary);
-    color: var(--color-white);
-}
-
-.btn-primary:hover {
-    background: var(--color-primary-dark);
-}
-
-.btn-secondary {
-    background: var(--color-gray-medium);
-    color: var(--color-white);
-}
-
-.btn-secondary:hover {
-    background: var(--color-gray-dark);
-}
-
-.btn-danger {
-    background: var(--color-error);
-    color: var(--color-white);
-}
-
-.btn-danger:hover {
-    background: #c82333;
 }

@@ -24,43 +24,83 @@ class CategoriesController extends AppController {
         return $this->render("categories");
     }
 
+    // Helper methods
+    private function checkAuth(): ?array {
+        if(!isset($_SESSION['username'])){
+            http_response_code(401);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Unauthorized'
+            ]);
+            return null;
+        }
+
+        $user = $this->userRepository->getUserByUsername($_SESSION['username']);
+        if (!$user) {
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'User not found'
+            ]);
+            return null;
+        }
+
+        return $user;
+    }
+
+    private function getJsonInput(): ?array {
+        if (!$this->isPost()) {
+            http_response_code(405);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Method not allowed'
+            ]);
+            return null;
+        }
+
+        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+        
+        if ($contentType !== "application/json") {
+            http_response_code(415);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid content type'
+            ]);
+            return null;
+        }
+
+        $content = trim(file_get_contents("php://input"));
+        return json_decode($content, true);
+    }
+
+    private function jsonResponse(string $status, $data = null, string $message = '', int $httpCode = 200): void {
+        http_response_code($httpCode);
+        $response = ['status' => $status];
+        
+        if ($message) {
+            $response['message'] = $message;
+        }
+        
+        if ($data !== null) {
+            $response = array_merge($response, $data);
+        }
+        
+        echo json_encode($response);
+    }
+
+    // API endpoints
     public function getCategories() {
         header('Content-Type: application/json');
         
         try {
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
-                return;
-            }
+            $user = $this->checkAuth();
+            if (!$user) return;
 
-            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-            if (!$user) {
-                http_response_code(404);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'User not found'
-                ]);
-                return;
-            }
+            $categories = $this->categoriesRepository->getCategoriesByUserId($user['userid']);
 
-            $userId = $user['userid'];
-            $categories = $this->categoriesRepository->getCategoriesByUserId($userId);
-
-            http_response_code(200);
-            echo json_encode([
-                'status' => 'success',
-                'categories' => $categories ?? []
-            ]);
+            $this->jsonResponse('success', ['categories' => $categories ?? []]);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -68,64 +108,23 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!$this->isPost()){
-                http_response_code(405);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Method not allowed'
-                ]);
+            $user = $this->checkAuth();
+            if (!$user) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) return;
+
+            if (!isset($data['categoryName']) || empty(trim($data['categoryName']))) {
+                $this->jsonResponse('error', null, 'Category name is required', 400);
                 return;
             }
 
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
-                return;
-            }
+            $categoryName = trim($data['categoryName']);
+            $this->categoriesRepository->createCategory($user['userid'], $categoryName);
 
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType !== "application/json") {
-                http_response_code(415);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Invalid content type'
-                ]);
-                return;
-            }
-
-            $content = trim(file_get_contents("php://input"));
-            $decoded = json_decode($content, true);
-
-            if (!isset($decoded['categoryName']) || empty(trim($decoded['categoryName']))) {
-                http_response_code(400);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Category name is required'
-                ]);
-                return;
-            }
-
-            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-            $userId = $user['userid'];
-
-            $categoryName = trim($decoded['categoryName']);
-
-            $this->categoriesRepository->createCategory($userId, $categoryName);
-
-            http_response_code(201);
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Category created successfully'
-            ]);
+            $this->jsonResponse('success', null, 'Category created successfully', 201);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -133,75 +132,31 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!$this->isPost()){
-                http_response_code(405);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Method not allowed'
-                ]);
+            $user = $this->checkAuth();
+            if (!$user) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) return;
+
+            if (!isset($data['categoryId']) || !isset($data['categoryName'])) {
+                $this->jsonResponse('error', null, 'Category ID and name are required', 400);
                 return;
             }
 
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
-                return;
-            }
-
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType !== "application/json") {
-                http_response_code(415);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Invalid content type'
-                ]);
-                return;
-            }
-
-            $content = trim(file_get_contents("php://input"));
-            $decoded = json_decode($content, true);
-
-            if (!isset($decoded['categoryId']) || !isset($decoded['categoryName'])) {
-                http_response_code(400);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Category ID and name are required'
-                ]);
-                return;
-            }
-
-            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-            $userId = $user['userid'];
-
-            $categoryId = (int)$decoded['categoryId'];
-            $categoryName = trim($decoded['categoryName']);
+            $categoryId = (int)$data['categoryId'];
+            $categoryName = trim($data['categoryName']);
 
             // Verify the category belongs to the user
-            if (!$this->categoriesRepository->categoryExists($categoryId, $userId)) {
-                http_response_code(403);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Forbidden: Category does not belong to user'
-                ]);
+            if (!$this->categoriesRepository->categoryExists($categoryId, $user['userid'])) {
+                $this->jsonResponse('error', null, 'Forbidden: Category does not belong to user', 403);
                 return;
             }
 
             $this->categoriesRepository->updateCategory($categoryId, $categoryName);
 
-            http_response_code(200);
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Category updated successfully'
-            ]);
+            $this->jsonResponse('success', null, 'Category updated successfully');
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -209,74 +164,30 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if(!$this->isPost()){
-                http_response_code(405);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Method not allowed'
-                ]);
+            $user = $this->checkAuth();
+            if (!$user) return;
+
+            $data = $this->getJsonInput();
+            if (!$data) return;
+
+            if (!isset($data['categoryId'])) {
+                $this->jsonResponse('error', null, 'Category ID is required', 400);
                 return;
             }
 
-            if(!isset($_SESSION['username'])){
-                http_response_code(401);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Unauthorized'
-                ]);
-                return;
-            }
-
-            $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-            if ($contentType !== "application/json") {
-                http_response_code(415);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Invalid content type'
-                ]);
-                return;
-            }
-
-            $content = trim(file_get_contents("php://input"));
-            $decoded = json_decode($content, true);
-
-            if (!isset($decoded['categoryId'])) {
-                http_response_code(400);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Category ID is required'
-                ]);
-                return;
-            }
-
-            $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-            $userId = $user['userid'];
-
-            $categoryId = (int)$decoded['categoryId'];
+            $categoryId = (int)$data['categoryId'];
 
             // Verify the category belongs to the user
-            if (!$this->categoriesRepository->categoryExists($categoryId, $userId)) {
-                http_response_code(403);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Forbidden: Category does not belong to user'
-                ]);
+            if (!$this->categoriesRepository->categoryExists($categoryId, $user['userid'])) {
+                $this->jsonResponse('error', null, 'Forbidden: Category does not belong to user', 403);
                 return;
             }
 
             $this->categoriesRepository->deleteCategory($categoryId);
 
-            http_response_code(200);
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Category deleted successfully'
-            ]);
+            $this->jsonResponse('success', null, 'Category deleted successfully');
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
-            ]);
+            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
 }

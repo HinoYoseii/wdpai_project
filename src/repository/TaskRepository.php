@@ -9,106 +9,84 @@ class TaskRepository extends Repository
         return self::$instance ??= new TaskRepository(); 
     } 
 
+    private function getBaseQuery(): string {
+        return '
+            SELECT t.*, c.categoryname 
+            FROM tasks t
+            LEFT JOIN categories c ON t.categoryid = c.categoryid
+        ';
+    }
+
     public function getTasks(): ?array
     {
-        $stmt = $this->database->connect()->prepare('
-            SELECT t.*, c.categoryname 
-            FROM tasks t
-            LEFT JOIN categories c ON t.categoryid = c.categoryid
-        ');
+        $stmt = $this->database->connect()->prepare($this->getBaseQuery());
         $stmt->execute();
-
-        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return $tasks;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function getTasksByUserId(int $userId): ?array
+    public function getTasksByUserId(int $userId, ?bool $isFinished = null): ?array
     {
-        $stmt = $this->database->connect()->prepare('
-            SELECT t.*, c.categoryname 
-            FROM tasks t
-            LEFT JOIN categories c ON t.categoryid = c.categoryid
-            WHERE t.userid = :userId 
-            ORDER BY t.ispinned DESC, t.deadlinedate ASC
-        ');
-        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $query = $this->getBaseQuery() . ' WHERE t.userid = :userId';
         
-        return $tasks ?: null;
-    }
-
-    public function getTask(int $taskId): ?array
-    {
-        $stmt = $this->database->connect()->prepare('
-            SELECT t.*, c.categoryname 
-            FROM tasks t
-            LEFT JOIN categories c ON t.categoryid = c.categoryid
-            WHERE t.taskid = :taskId
-        ');
-        $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $task = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($task == false) {
-            return null;
+        if ($isFinished !== null) {
+            $query .= ' AND t.isfinished = :isFinished';
         }
-
-        return $task;
-    }
-
-    public function getTasksByCategory(int $categoryId): ?array
-    {
-        $stmt = $this->database->connect()->prepare('
-            SELECT t.*, c.categoryname 
-            FROM tasks t
-            LEFT JOIN categories c ON t.categoryid = c.categoryid
-            WHERE t.categoryid = :categoryId 
-            ORDER BY t.ispinned DESC, t.deadlinedate ASC
-        ');
-        $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        return $tasks ?: null;
+        $query .= ' ORDER BY t.ispinned DESC, t.deadlinedate ASC';
+        
+        $stmt = $this->database->connect()->prepare($query);
+        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        
+        if ($isFinished !== null) {
+            $stmt->bindParam(':isFinished', $isFinished, PDO::PARAM_BOOL);
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: null;
     }
 
     public function getUnfinishedTasks(int $userId): ?array
     {
-        $stmt = $this->database->connect()->prepare('
-            SELECT t.*, c.categoryname 
-            FROM tasks t
-            LEFT JOIN categories c ON t.categoryid = c.categoryid
-            WHERE t.userid = :userId AND t.isfinished = FALSE 
-            ORDER BY t.ispinned DESC, t.deadlinedate ASC
-        ');
-        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return $tasks ?: null;
+        return $this->getTasksByUserId($userId, false);
     }
 
     public function getFinishedTasks(int $userId): ?array
     {
-        $stmt = $this->database->connect()->prepare('
-            SELECT t.*, c.categoryname 
-            FROM tasks t
-            LEFT JOIN categories c ON t.categoryid = c.categoryid
+        $query = $this->getBaseQuery() . '
             WHERE t.userid = :userId AND t.isfinished = TRUE 
             ORDER BY t.deadlinedate DESC
-        ');
+        ';
+        
+        $stmt = $this->database->connect()->prepare($query);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
-
-        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        return $tasks ?: null;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function getTask(int $taskId): ?array
+    {
+        $query = $this->getBaseQuery() . ' WHERE t.taskid = :taskId';
+        
+        $stmt = $this->database->connect()->prepare($query);
+        $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function getTasksByCategory(int $categoryId): ?array
+    {
+        $query = $this->getBaseQuery() . '
+            WHERE t.categoryid = :categoryId 
+            ORDER BY t.ispinned DESC, t.deadlinedate ASC
+        ';
+        
+        $stmt = $this->database->connect()->prepare($query);
+        $stmt->bindParam(':categoryId', $categoryId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: null;
     }
 
     public function createTask(
@@ -152,7 +130,8 @@ class TaskRepository extends Repository
     ): void {
         $stmt = $this->database->connect()->prepare('
             UPDATE tasks 
-            SET categoryid = ?, deadlinedate = ?, title = ?, taskdescription = ?, fun = ?, difficulty = ?, importance = ?, time = ?
+            SET categoryid = ?, deadlinedate = ?, title = ?, taskdescription = ?, 
+                fun = ?, difficulty = ?, importance = ?, time = ?
             WHERE taskid = ?
         ');
         $stmt->execute([
@@ -170,18 +149,20 @@ class TaskRepository extends Repository
 
     public function markTaskAsFinished(int $taskId): void
     {
-        $stmt = $this->database->connect()->prepare('
-            UPDATE tasks SET isfinished = TRUE WHERE taskid = :taskId
-        ');
-        $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
-        $stmt->execute();
+        $this->updateTaskFinishStatus($taskId, true);
     }
 
     public function markTaskAsUnfinished(int $taskId): void
     {
+        $this->updateTaskFinishStatus($taskId, false);
+    }
+
+    private function updateTaskFinishStatus(int $taskId, bool $isFinished): void
+    {
         $stmt = $this->database->connect()->prepare('
-            UPDATE tasks SET isfinished = FALSE WHERE taskid = :taskId
+            UPDATE tasks SET isfinished = :isFinished WHERE taskid = :taskId
         ');
+        $stmt->bindParam(':isFinished', $isFinished, PDO::PARAM_BOOL);
         $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
         $stmt->execute();
     }

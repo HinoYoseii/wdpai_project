@@ -1,10 +1,6 @@
 <?php
 
 require_once 'Repository.php';
-//require_once __DIR__.'/../models/User.php';
-
-# po podłączeniu bazy se trzeba zrobić tabele związaną z aplikacją
-# zrobić rejestracje a potem logowanie, żeby za każdym raze nie tworzyć user repository to zrobić w kontrolerze
 
 class UserRepository extends Repository
 {
@@ -26,7 +22,7 @@ class UserRepository extends Repository
         return $users;
     }
 
-    public function getUser(string $email): ?User
+    public function getUser(string $email): ?array
     {
         $stmt = $this->database->connect()->prepare('
             SELECT * FROM users WHERE email = :email
@@ -40,11 +36,7 @@ class UserRepository extends Repository
             return null;
         }
 
-        return new User(
-            $user['email'],
-            $user['password'],
-            $user['username']
-        );
+        return $user;
     }
 
     public function getUserByEmail(string $email)
@@ -60,8 +52,8 @@ class UserRepository extends Repository
         if ($user == false) {
             return null;
         }
-        // todo disconnect
-        return $user;
+
+        return $user; 
     }
 
      public function getUserByUsername(string $username): ?array
@@ -77,17 +69,11 @@ class UserRepository extends Repository
         if ($user == false) {
             return null;
         }
-        // todo disconnect
         return $user;
     }
 
 
-    // Add to UserRepository.php
-    public function createUser(
-        string $email,
-        string $hashedPassword,
-        string $username
-    ){
+    public function createUser(string $email,string $hashedPassword,string $username){
         $stmt = $this->database->connect()->prepare(
             '
             INSERT INTO public.users (email, hashedpassword, username) VALUES (?,?,?)

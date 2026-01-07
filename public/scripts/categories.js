@@ -1,48 +1,80 @@
+// categories.js - Refactored
 document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     initializeModalHandlers();
+    initializeCategoryListHandlers();
 });
 
 let currentCategoryId = null;
 let categoryToDelete = null;
+let categories = [];
 
-async function loadCategories() {
-    const categoriesList = document.getElementById('categoriesList');
-    
+// Cache DOM elements
+const elements = {
+    get categoriesList() { return document.getElementById('categoriesList'); },
+    get categoryModal() { return document.getElementById('categoryModal'); },
+    get deleteModal() { return document.getElementById('deleteModal'); },
+    get categoryForm() { return document.getElementById('categoryForm'); }
+};
+
+// Utility functions
+async function fetchAPI(url, options = {}) {
     try {
-        const response = await fetch('/getCategories', {
-            method: 'GET',
+        const response = await fetch(url, {
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            ...options
         });
 
         const data = await response.json();
-
+        
         if (data.status === 'success') {
-            displayCategories(data.categories);
+            return data;
         } else {
-            categoriesList.innerHTML = '<p class="error-message">Błąd podczas ładowania kategorii</p>';
+            throw new Error(data.message || 'Błąd operacji');
         }
     } catch (error) {
-        console.error('Error loading categories:', error);
-        categoriesList.innerHTML = '<p class="error-message">Nie udało się załadować kategorii</p>';
+        console.error('API Error:', error);
+        showError(error.message || 'Nie udało się wykonać operacji');
+        throw error;
     }
 }
 
-function displayCategories(categories) {
-    const categoriesList = document.getElementById('categoriesList');
-    
+function showError(message) {
+    alert(message);
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Categories
+async function loadCategories() {
+    try {
+        const data = await fetchAPI('/getCategories');
+        categories = data.categories || [];
+        displayCategories();
+    } catch (error) {
+        elements.categoriesList.innerHTML = '<p class="error-message">Nie udało się załadować kategorii</p>';
+    }
+}
+
+function displayCategories() {
     if (!categories || categories.length === 0) {
-        categoriesList.innerHTML = '<p class="empty-message">Brak kategorii. Dodaj swoją pierwszą kategorię!</p>';
+        elements.categoriesList.innerHTML = '<p class="empty-message">Brak kategorii. Dodaj swoją pierwszą kategorię!</p>';
         return;
     }
 
-    categoriesList.innerHTML = '';
+    elements.categoriesList.innerHTML = '';
 
     categories.forEach(category => {
         const categoryItem = createCategoryElement(category);
-        categoriesList.appendChild(categoryItem);
+        elements.categoriesList.appendChild(categoryItem);
     });
 }
 
@@ -50,16 +82,17 @@ function createCategoryElement(category) {
     const categoryItem = document.createElement('div');
     categoryItem.className = 'list-item';
     categoryItem.dataset.categoryId = category.categoryid;
+    categoryItem.dataset.categoryName = category.categoryname;
 
     categoryItem.innerHTML = `
         <div class="content">
             <h3 class="category-name">${escapeHtml(category.categoryname)}</h3>
         </div>
         <div class="action-buttons">
-            <button class="menu-btn" onclick="editCategory(${category.categoryid}, '${escapeHtml(category.categoryname)}')">
+            <button class="menu-btn" data-action="edit" title="Edytuj">
                 <img src="public/assets/edit.png" class="list-icon" alt="ikona">
             </button>
-            <button class="menu-btn" onclick="confirmDeleteCategory(${category.categoryid})">
+            <button class="menu-btn" data-action="delete" title="Usuń">
                 <img src="public/assets/delete.png" class="list-icon" alt="ikona">
             </button>
         </div>
@@ -68,48 +101,50 @@ function createCategoryElement(category) {
     return categoryItem;
 }
 
+// Event delegation for category list
+function initializeCategoryListHandlers() {
+    elements.categoriesList.addEventListener('click', (e) => {
+        const button = e.target.closest('.menu-btn');
+        if (!button) return;
+
+        const listItem = button.closest('.list-item');
+        const categoryId = parseInt(listItem.dataset.categoryId);
+        const categoryName = listItem.dataset.categoryName;
+        const action = button.dataset.action;
+
+        switch (action) {
+            case 'edit':
+                editCategory(categoryId, categoryName);
+                break;
+            case 'delete':
+                confirmDeleteCategory(categoryId);
+                break;
+        }
+    });
+}
+
+// Modal handlers
 function initializeModalHandlers() {
-    const modal = document.getElementById('categoryModal');
-    const deleteModal = document.getElementById('deleteModal');
     const addBtn = document.getElementById('addCategoryBtn');
     const cancelBtn = document.getElementById('cancelBtn');
-    const form = document.getElementById('categoryForm');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
-    addBtn.addEventListener('click', () => {
-        openModal();
+    addBtn.addEventListener('click', () => openModal());
+    cancelBtn.addEventListener('click', closeModal);
+    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+    confirmDeleteBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await deleteCategory();
     });
 
-    cancelBtn.addEventListener('click', () => {
-        closeModal();
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            closeModal();
-        }
-        if (event.target === deleteModal) {
-            closeDeleteModal();
-        }
-    });
-
-    form.addEventListener('submit', async (e) => {
+    elements.categoryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         await saveCategory();
-    });
-
-    cancelDeleteBtn.addEventListener('click', () => {
-        closeDeleteModal();
-    });
-
-    confirmDeleteBtn.addEventListener('click', async () => {
-        await deleteCategory();
     });
 }
 
 function openModal(categoryId = null, categoryName = '') {
-    const modal = document.getElementById('categoryModal');
     const modalTitle = document.getElementById('modalTitle');
     const categoryIdInput = document.getElementById('categoryId');
     const categoryNameInput = document.getElementById('categoryName');
@@ -126,13 +161,12 @@ function openModal(categoryId = null, categoryName = '') {
         categoryNameInput.value = '';
     }
 
-    modal.style.display = 'block';
+    elements.categoryModal.style.display = 'flex';
     categoryNameInput.focus();
 }
 
 function closeModal() {
-    const modal = document.getElementById('categoryModal');
-    modal.style.display = 'none';
+    elements.categoryModal.style.display = 'none';
     currentCategoryId = null;
 }
 
@@ -145,7 +179,7 @@ async function saveCategory() {
     const categoryName = document.getElementById('categoryName').value.trim();
 
     if (!categoryName) {
-        alert('Nazwa kategorii jest wymagana');
+        showError('Nazwa kategorii jest wymagana');
         return;
     }
 
@@ -155,37 +189,26 @@ async function saveCategory() {
         : { categoryName };
 
     try {
-        const response = await fetch(url, {
+        await fetchAPI(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
-
-        if (data.status === 'success') {
-            closeModal();
-            await loadCategories();
-        } else {
-            alert(data.message || 'Błąd podczas zapisywania kategorii');
-        }
+        closeModal();
+        await loadCategories();
     } catch (error) {
-        console.error('Error saving category:', error);
-        alert('Nie udało się zapisać kategorii');
+        // Error already handled by fetchAPI
     }
 }
 
+// Delete modal
 function confirmDeleteCategory(categoryId) {
     categoryToDelete = categoryId;
-    const deleteModal = document.getElementById('deleteModal');
-    deleteModal.style.display = 'block';
+    elements.deleteModal.style.display = 'flex';
 }
 
 function closeDeleteModal() {
-    const deleteModal = document.getElementById('deleteModal');
-    deleteModal.style.display = 'none';
+    elements.deleteModal.style.display = 'none';
     categoryToDelete = null;
 }
 
@@ -193,30 +216,14 @@ async function deleteCategory() {
     if (!categoryToDelete) return;
 
     try {
-        const response = await fetch('/deleteCategory', {
+        await fetchAPI('/deleteCategory', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify({ categoryId: categoryToDelete })
         });
 
-        const data = await response.json();
-
-        if (data.status === 'success') {
-            closeDeleteModal();
-            await loadCategories();
-        } else {
-            alert(data.message || 'Błąd podczas usuwania kategorii');
-        }
+        closeDeleteModal();
+        await loadCategories();
     } catch (error) {
-        console.error('Error deleting category:', error);
-        alert('Nie udało się usunąć kategorii');
+        // Error already handled by fetchAPI
     }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
