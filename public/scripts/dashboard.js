@@ -176,7 +176,7 @@ function createTaskElement(task) {
             <button class="menu-btn" onclick="unfinishTask(${task.taskid})" title="Przywróć zadanie">
                 <img src="public/assets/undo.png" class="list-icon" alt="ikona">
             </button>
-            <button class="menu-btn" onclick="deleteTask(${task.taskid})" title="Usuń permanentnie">
+            <button class="menu-btn" onclick="confirmDeleteTask(${task.taskid})" title="Usuń permanentnie">
                 <img src="public/assets/delete.png" class="list-icon" alt="ikona">
             </button>
         `;
@@ -188,7 +188,7 @@ function createTaskElement(task) {
             <button class="menu-btn" onclick="editTask(${task.taskid})" title="Edytuj">
                 <img src="public/assets/edit.png" class="list-icon" alt="ikona">
             </button>
-            <button class="menu-btn" onclick="deleteTask(${task.taskid})" title="Usuń">
+            <button class="menu-btn" onclick="confirmDeleteTask(${task.taskid})" title="Usuń">
                 <img src="public/assets/delete.png" class="list-icon" alt="ikona">
             </button>
         `;
@@ -242,29 +242,18 @@ function initializeModalHandlers() {
     const modal = document.getElementById('taskModal');
     const deleteModal = document.getElementById('deleteModal');
     const addBtn = document.getElementById('addTaskBtn');
-    const closeBtn = document.querySelector('.close');
     const cancelBtn = document.getElementById('cancelBtn');
     const form = document.getElementById('taskForm');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
-    if (addBtn) {
-        addBtn.addEventListener('click', () => {
-            openModal();
-        });
-    }
+    addBtn.addEventListener('click', () => {
+        openModal();
+    });
 
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            closeModal();
-        });
-    }
-
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-            closeModal();
-        });
-    }
+    cancelBtn.addEventListener('click', () => {
+        closeModal();
+    });
 
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
@@ -275,24 +264,18 @@ function initializeModalHandlers() {
         }
     });
 
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await saveTask();
-        });
-    }
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await saveTask();
+    });
 
-    if (cancelDeleteBtn) {
-        cancelDeleteBtn.addEventListener('click', () => {
-            closeDeleteModal();
-        });
-    }
+    cancelDeleteBtn.addEventListener('click', () => {
+        closeDeleteModal();
+    });
 
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', async () => {
-            await confirmDelete();
-        });
-    }
+    confirmDeleteBtn.addEventListener('click', async () => {
+        await deleteTask();
+    });
 }
 
 function openModal(taskId = null) {
@@ -439,15 +422,8 @@ function closeDeleteModal() {
     taskToDelete = null;
 }
 
-async function confirmDelete() {
+async function deleteTask() {
     if (!taskToDelete) return;
-    await deleteTask(taskToDelete);
-}
-
-async function deleteTask(taskId) {
-    if (!confirm('Czy na pewno chcesz usunąć to zadanie?')) {
-        return;
-    }
 
     try {
         const response = await fetch('/deleteTask', {
@@ -455,7 +431,7 @@ async function deleteTask(taskId) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ taskId: parseInt(taskId) })
+            body: JSON.stringify({ taskId: taskToDelete })
         });
 
         const data = await response.json();

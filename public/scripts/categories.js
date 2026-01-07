@@ -72,7 +72,6 @@ function initializeModalHandlers() {
     const modal = document.getElementById('categoryModal');
     const deleteModal = document.getElementById('deleteModal');
     const addBtn = document.getElementById('addCategoryBtn');
-    const closeBtn = document.querySelector('.close');
     const cancelBtn = document.getElementById('cancelBtn');
     const form = document.getElementById('categoryForm');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
@@ -81,12 +80,6 @@ function initializeModalHandlers() {
     addBtn.addEventListener('click', () => {
         openModal();
     });
-
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            closeModal();
-        });
-    }
 
     cancelBtn.addEventListener('click', () => {
         closeModal();
