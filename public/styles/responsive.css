@@ -1,0 +1,21 @@
+@media (max-width: 480px) {
+  nav, 
+  nav.small,
+  .main-container{
+    width: 100%;
+    margin:0;
+  }
+  .main-container{
+    height: calc(100vh - 7vh);
+    padding: 0;
+  }
+  .action-buttons{
+    flex-direction: column;
+  }
+  .header-section{
+    margin: 0.5rem;
+  }
+  .divider{
+    display:none;
+  }
+}
