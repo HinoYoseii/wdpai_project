@@ -42,12 +42,10 @@
         margin: 0;
     }
     
-    /* Show mobile footer */
     .mobile-footer {
         display: block;
     }
     
-    /* Hide dashboard and categories from nav, keep only profile */
     nav ul li:not(.nav-icon-only) {
         display: none;
     }
@@ -69,6 +67,27 @@
     .nav-icon-only img {
         width: 24px;
         height: 24px;
+    }
+
+    .modal {
+        overflow-y: auto;
+    }
+    
+    .modal-content-form {
+        max-height: fit-content;
+        margin: auto 0;
+        padding: var(--spacing-md);
+        width: 100%;
+        min-width: unset;
+    }
+    
+    .modal h1 {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .form-row{
+        display: flex;
+        flex-direction: column;
     }
 
     *::-webkit-scrollbar {

@@ -126,11 +126,13 @@ function initializeCategoryListHandlers() {
 // Modal handlers
 function initializeModalHandlers() {
     const addBtn = document.getElementById('addCategoryBtn');
+    const addBtnMobile = document.getElementById('addCategoryBtnMobile');
     const cancelBtn = document.getElementById('cancelBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
     addBtn.addEventListener('click', () => openModal());
+    addBtnMobile.addEventListener('click', () => openModal());
     cancelBtn.addEventListener('click', closeModal);
     cancelDeleteBtn.addEventListener('click', closeDeleteModal);
     confirmDeleteBtn.addEventListener('click', async (e) => {

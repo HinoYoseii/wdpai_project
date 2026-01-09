@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/styles/main.css">
+    <link rel="stylesheet" href="public/styles/responsive.css">
 
     <script src="public/scripts/main.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +26,16 @@
             <li><a href="\account">Profil</a></li>
         </ul>
     </nav>
+    <footer class="mobile-footer">
+        <div class="mobile-footer-content">
+            <a href="\dashboard" class="footer-btn">
+                <img src="public/assets/home.png" alt="Home">
+            </a>
+            <a href="\categories" class="footer-btn">
+                <img src="public/assets/category.png" alt="Categories">
+            </a>
+        </div>
+    </footer>
     <div class="main-container">
         <form action="\logout" method="POST">
             <button class="logout-btn" type="submit">Wyloguj się</button>
