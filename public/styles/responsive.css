@@ -1,21 +1,78 @@
 @media (max-width: 480px) {
-  nav, 
-  nav.small,
-  .main-container{
-    width: 100%;
-    margin:0;
-  }
-  .main-container{
-    height: calc(100vh - 7vh);
-    padding: 0;
-  }
-  .action-buttons{
-    flex-direction: column;
-  }
-  .header-section{
-    margin: 0.5rem;
-  }
-  .divider{
-    display:none;
-  }
+    nav{
+        height: 60px;
+    }
+
+    nav, 
+    nav.small,
+    .main-container {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .main-container {
+        height: calc(100vh - 120px);
+        padding: 0;
+        margin-bottom: 60px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .header-section {
+        justify-content: center;
+        margin: 0.5rem;
+    }
+    
+    .header-section .add-btn {
+        display: none;
+    }
+
+    .filters-section{
+        flex-direction: column;
+        gap: var(--spacing-xs)
+    }
+
+    .divider{
+        margin-top: 0;
+    }
+
+    .list-item{
+        margin: 0;
+    }
+    
+    /* Show mobile footer */
+    .mobile-footer {
+        display: block;
+    }
+    
+    /* Hide dashboard and categories from nav, keep only profile */
+    nav ul li:not(.nav-icon-only) {
+        display: none;
+    }
+    
+    nav ul {
+        gap: 0;
+    }
+    
+    .nav-icon-only {
+        display: flex;
+    }
+    
+    .nav-icon-only a {
+        display: flex;
+        align-items: center;
+        padding: var(--spacing-xs);
+    }
+    
+    .nav-icon-only img {
+        width: 24px;
+        height: 24px;
+    }
+
+    *::-webkit-scrollbar {
+        height: 0px;
+        width: 0px;
+    }
 }

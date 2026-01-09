@@ -255,10 +255,12 @@ function initializeTaskListHandlers() {
 // Modal handlers
 function initializeModalHandlers() {
     const addBtn = document.getElementById('addTaskBtn');
+    const addBtnMobile = document.getElementById('addTaskBtnMobile');
     const cancelBtn = document.getElementById('cancelBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
+    addBtnMobile.addEventListener('click', () => openModal());
     addBtn.addEventListener('click', () => openModal());
     cancelBtn.addEventListener('click', closeModal);
     cancelDeleteBtn.addEventListener('click', closeDeleteModal);
