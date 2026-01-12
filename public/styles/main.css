@@ -190,9 +190,8 @@ button {
 }
 
 .form-small {
-    min-width: 300px;
-    width: 90%;
     max-width: 400px;
+    width: 90%;
 }
 
 label {
@@ -360,8 +359,7 @@ input::placeholder {
 
 .nav-small {
     max-width: 400px;
-    width: 90%;
-    margin: 0 auto;
+    /* margin: 0 auto; */
     justify-content: center;
 }
 
