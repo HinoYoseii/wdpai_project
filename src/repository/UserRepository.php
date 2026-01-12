@@ -10,6 +10,7 @@ class UserRepository extends Repository
         return self::$instance ??= new UserRepository(); 
     } 
 
+    # Zwraca wszytskich użytkowników, funkcja dla admina
     public function getUsers(): ?array
     {
         $stmt = $this->database->connect()->prepare('
@@ -22,27 +23,11 @@ class UserRepository extends Repository
         return $users;
     }
 
-    public function getUser(string $email): ?array
-    {
-        $stmt = $this->database->connect()->prepare('
-            SELECT * FROM users WHERE email = :email
-        ');
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->execute();
-
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user == false) {
-            return null;
-        }
-
-        return $user;
-    }
-
+    # Zwraca użytkownika z wybranym adresem e-mail
     public function getUserByEmail(string $email)
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM users WHERE email = :email
+            SELECT email, hashedPassword, username, userRole FROM users WHERE email = :email
         ');
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
@@ -56,10 +41,11 @@ class UserRepository extends Repository
         return $user; 
     }
 
-     public function getUserByUsername(string $username): ?array
+    # Zwraca użytkownika z wybraną nazwą użytkownia
+    public function getUserByUsername(string $username): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM users WHERE username = :username
+            SELECT email, hashedPassword, username, userRole FROM users WHERE username = :username
         ');
         $stmt->bindParam(':username', $username, PDO::PARAM_STR);
         $stmt->execute();
@@ -72,7 +58,7 @@ class UserRepository extends Repository
         return $user;
     }
 
-
+    # Tworzy nowego uzytkownica
     public function createUser(string $email,string $hashedPassword,string $username){
         $stmt = $this->database->connect()->prepare(
             '
@@ -95,4 +81,14 @@ class UserRepository extends Repository
         return $userId;
     }
 
+    public function deleteUserById(int $userid): bool
+    {
+        $stmt = $this->database->connect()->prepare("
+            DELETE FROM users
+            WHERE userid = :userid
+        ");
+
+        $stmt->bindParam(':userid', $userid, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
 }

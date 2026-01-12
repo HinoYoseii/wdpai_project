@@ -344,7 +344,7 @@ input::placeholder {
 }
 
 /* Navigation */
-nav {
+.nav-default {
     background-color: var(--color-primary);
     padding: 0.625rem var(--spacing-md);
     box-shadow: var(--shadow-light);
@@ -358,7 +358,7 @@ nav {
     min-width: 300px;
 }
 
-nav.small {
+.nav-small {
     max-width: 400px;
     width: 90%;
     margin: 0 auto;

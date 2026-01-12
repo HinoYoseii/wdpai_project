@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="public/styles/main.css">
+    <link rel="stylesheet" href="public/styles/responsive.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +16,7 @@
     <nav class="small">
         <a href="\dashboard">Unihub</a>
     </nav>
-    <form class="form-default small-form" action="\register" method="POST">
+    <form class="form-default form-small" action="\register" method="POST">
         <?php if(isset($messages)): ?>
             <p class="message">
                 <?= $messages; ?>

@@ -1,19 +1,15 @@
 @media (max-width: 480px) {
-    nav{
-        height: 60px;
-    }
-
-    nav, 
-    nav.small,
+    .nav-default, 
+    .nav-small,
     .main-container {
         width: 100%;
         margin: 0;
     }
     
     .main-container {
-        height: calc(100vh - 120px);
+        height: calc(100vh - 14vh);
         padding: 0;
-        margin-bottom: 60px;
+        margin-bottom: 7vh;
     }
     
     .action-buttons {

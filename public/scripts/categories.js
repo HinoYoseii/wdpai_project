@@ -1,4 +1,3 @@
-// categories.js - Refactored
 document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     initializeModalHandlers();
