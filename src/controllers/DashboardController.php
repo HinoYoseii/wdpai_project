@@ -9,22 +9,17 @@ require_once __DIR__.'/../repository/CategoriesRepository.php';
 class DashboardController extends AppController {
 
     private $taskRepository;
-    private $userRepository;
     private $preferencesRepository;
     private $categoryRepository;
 
     public function __construct() {
         $this->taskRepository = TaskRepository::getInstance();
-        $this->userRepository = UserRepository::getInstance();
         $this->preferencesRepository = PreferencesRepository::getInstance();
         $this->categoryRepository = CategoriesRepository::getInstance();
     }
 
     public function dashboard() {
         $this->requireLogin();
-        
-        $user = $this->getUserCookie();
-        $userId = (int)$user['id'];
 
         return $this->render("dashboard");
     }
@@ -35,6 +30,9 @@ class DashboardController extends AppController {
         
         try {
             $this->requireLogin();
+
+            $user = $this->getUserCookie();
+            $userId = $user['id'];
 
             $tasks = $this->taskRepository->getUnfinishedTasks($userId);
             $tasksWithScore = $this->calculateTaskPriorities($tasks ?: [], $userId);
@@ -51,7 +49,10 @@ class DashboardController extends AppController {
         try {
             $this->requireLogin();
 
-            $tasks = $this->taskRepository->getFinishedTasks($user['userid']);
+            $user = $this->getUserCookie();
+            $userId = $user['id'];
+
+            $tasks = $this->taskRepository->getFinishedTasks($userId);
 
             $this->jsonResponse('success', ['tasks' => $tasks ?: []]);
         } catch (Exception $e) {
@@ -91,6 +92,9 @@ class DashboardController extends AppController {
         try {
             $this->requireLogin();
 
+            $user = $this->getUserCookie();
+            $userId = $user['id'];
+
             $data = $this->getJsonInput();
             if (!$data) {
                 $this->jsonResponse('error', null, 'Invalid request', 400);
@@ -105,7 +109,7 @@ class DashboardController extends AppController {
             }
 
             $this->taskRepository->createTask(
-                $user['userid'],
+                $userId,
                 $data['categoryId'] ?? null,
                 $data['deadlineDate'] ?? null,
                 $title,
@@ -164,7 +168,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if (!$this->checkAuth()) return;
+            $this->requireLogin();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -191,8 +195,10 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $user = $this->checkAuth();
-            if (!$user) return;
+            $this->requireLogin();
+
+            $user = $this->getUserCookie();
+            $userId = $user['id'];
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -207,7 +213,7 @@ class DashboardController extends AppController {
                 return;
             }
 
-            $preferences = $this->preferencesRepository->getPreferences($user['userid']);
+            $preferences = $this->preferencesRepository->getPreferences($userId);
             $deleteFinished = $preferences['deletefinishedtasks'] ?? false;
 
             if ($deleteFinished) {
@@ -294,48 +300,36 @@ class DashboardController extends AppController {
             'deadlineInfluence' => (float)($preferencesData['deadlineinfluence'] ?? 1.0)
         ];
         
-        $valueMap = [
-            'low' => 33,
-            'medium' => 66,
-            'high' => 100,
-            'short' => 33,
-            'long' => 100
-        ];
-
         $currentTime = time();
         $tasksWithScore = [];
 
         foreach ($tasks as $task) {
             $score = 0;
 
-            $funValue = $valueMap[$task['fun']] ?? 66;
-            $score += $funValue * $preferences['funInfluence'];
+            $score += $task['fun'] * $preferences['funInfluence'];
 
-            $difficultyValue = $valueMap[$task['difficulty']] ?? 66;
-            $score += (100 - $difficultyValue) * $preferences['difficultyInfluence'];
+            $score += (10 - $task['difficulty']) * $preferences['difficultyInfluence'];
 
-            $importanceValue = $valueMap[$task['importance']] ?? 66;
-            $score += $importanceValue * $preferences['importanceInfluence'];
+            $score += $task['importance'] * $preferences['importanceInfluence'];
 
-            $timeValue = $valueMap[$task['time']] ?? 66;
-            $score += (100 - $timeValue) * $preferences['timeInfluence'];
+            $score += (10 - $task['time']) * $preferences['timeInfluence'];
 
             if ($task['deadlinedate']) {
                 $deadlineTimestamp = strtotime($task['deadlinedate']);
                 $daysUntilDeadline = ($deadlineTimestamp - $currentTime) / (60 * 60 * 24);
                 
                 if ($daysUntilDeadline < 0) {
-                    $urgencyScore = 100;
-                } elseif ($daysUntilDeadline < 1) {
-                    $urgencyScore = 90;
-                } elseif ($daysUntilDeadline < 3) {
-                    $urgencyScore = 70;
-                } elseif ($daysUntilDeadline < 7) {
-                    $urgencyScore = 50;
-                } elseif ($daysUntilDeadline < 14) {
-                    $urgencyScore = 30;
-                } else {
                     $urgencyScore = 10;
+                } elseif ($daysUntilDeadline < 1) {
+                    $urgencyScore = 5;
+                } elseif ($daysUntilDeadline < 3) {
+                    $urgencyScore = 4;
+                } elseif ($daysUntilDeadline < 7) {
+                    $urgencyScore = 3;
+                } elseif ($daysUntilDeadline < 14) {
+                    $urgencyScore = 2;
+                } else {
+                    $urgencyScore = 11;
                 }
                 
                 $score += $urgencyScore * $preferences['deadlineInfluence'];
@@ -345,7 +339,6 @@ class DashboardController extends AppController {
             $tasksWithScore[] = $task;
         }
 
-        // Sort: pinned first, then by priority score
         usort($tasksWithScore, function($a, $b) {
             if ($a['ispinned'] && !$b['ispinned']) return -1;
             if (!$a['ispinned'] && $b['ispinned']) return 1;

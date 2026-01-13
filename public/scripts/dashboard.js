@@ -164,6 +164,7 @@ function createTaskElement(task) {
     const isPinned = task.ispinned === true || task.ispinned === 't';
     const starIcon = isPinned ? 'star_fill.png' : 'star_empty.png';
     const description = task.taskdescription ? `<p class="description">${escapeHtml(task.taskdescription)}</p>` : '';
+    const priorityScore = task.priorityScore ? `<p>${escapeHtml(task.priorityScore)}</p>`: '';
 
     const actionButtons = currentFilter.showFinished ? `
         <button class="menu-btn" data-action="unfinish" title="Przywróć zadanie">
@@ -193,6 +194,7 @@ function createTaskElement(task) {
             ${description}
             <p class="description">Kategoria: ${escapeHtml(categoryName)}</p>
             <p class="description">Termin: ${deadline}</p>
+            <p class=description">${priorityScore}</p> 
         </div>
         <div class="action-buttons">
             ${actionButtons}
