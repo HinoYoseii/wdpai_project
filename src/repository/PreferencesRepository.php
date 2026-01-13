@@ -37,34 +37,8 @@ class PreferencesRepository extends Repository
         return $prefs;
     }
 
-    public function createPreferences(
-        int $userId,
-        ?string $bio = null,
-        float $funInfluence = 1.0,
-        float $difficultyInfluence = 1.0,
-        float $importanceInfluence = 1.0,
-        float $timeInfluence = 1.0,
-        float $deadlineInfluence = 1.0
-    ): void {
-        $stmt = $this->database->connect()->prepare('
-            INSERT INTO userpreferences 
-            (userid, bio, funinfluence, difficultyinfluence, importanceinfluence, timeinfluence, deadlineinfluence) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ');
-        $stmt->execute([
-            $userId,
-            $bio,
-            $funInfluence,
-            $difficultyInfluence,
-            $importanceInfluence,
-            $timeInfluence,
-            $deadlineInfluence
-        ]);
-    }
-
     public function updatePreferences(
         int $userId,
-        ?string $bio,
         float $funInfluence,
         float $difficultyInfluence,
         float $importanceInfluence,
@@ -73,7 +47,6 @@ class PreferencesRepository extends Repository
     ): void {
         $stmt = $this->database->connect()->prepare('
             UPDATE userpreferences 
-            SET bio = ?, 
                 funinfluence = ?, 
                 difficultyinfluence = ?, 
                 importanceinfluence = ?, 
@@ -82,7 +55,6 @@ class PreferencesRepository extends Repository
             WHERE userid = ?
         ');
         $stmt->execute([
-            $bio,
             $funInfluence,
             $difficultyInfluence,
             $importanceInfluence,
@@ -119,16 +91,6 @@ class PreferencesRepository extends Repository
         ]);
     }
 
-    public function updateBio(int $userId, ?string $bio): void
-    {
-        $stmt = $this->database->connect()->prepare('
-            UPDATE userpreferences 
-            SET bio = ?
-            WHERE userid = ?
-        ');
-        $stmt->execute([$bio, $userId]);
-    }
-
     public function deletePreferences(int $userId): void
     {
         $stmt = $this->database->connect()->prepare('
@@ -136,24 +98,5 @@ class PreferencesRepository extends Repository
         ');
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
-    }
-
-    public function preferencesExist(int $userId): bool
-    {
-        $stmt = $this->database->connect()->prepare('
-            SELECT COUNT(*) as count FROM userpreferences WHERE userid = :userId
-        ');
-        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['count'] > 0;
-    }
-
-    public function ensurePreferencesExist(int $userId): void
-    {
-        if (!$this->preferencesExist($userId)) {
-            $this->createPreferences($userId);
-        }
     }
 }

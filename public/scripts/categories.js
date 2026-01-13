@@ -57,6 +57,8 @@ async function loadCategories() {
     try {
         const data = await fetchAPI('/getCategories');
         categories = data.categories || [];
+        console.log(data.categories);
+        
         displayCategories();
     } catch (error) {
         elements.categoriesList.innerHTML = '<p class="error-message">Nie udało się załadować kategorii</p>';

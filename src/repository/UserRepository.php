@@ -27,7 +27,7 @@ class UserRepository extends Repository
     public function getUserByEmail(string $email)
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT email, hashedPassword, username, userRole FROM users WHERE email = :email
+            SELECT * FROM users WHERE email = :email
         ');
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
@@ -74,9 +74,6 @@ class UserRepository extends Repository
         
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $userId = $result['userid'];
-        
-        $preferencesRepository = PreferencesRepository::getInstance();
-        $preferencesRepository->createPreferences($userId);
         
         return $userId;
     }

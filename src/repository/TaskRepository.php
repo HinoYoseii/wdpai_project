@@ -185,13 +185,4 @@ class TaskRepository extends Repository
         $stmt->bindParam(':taskId', $taskId, PDO::PARAM_INT);
         $stmt->execute();
     }
-
-    public function deleteFinishedTasksByUserId(int $userId): void
-    {
-        $stmt = $this->database->connect()->prepare('
-            DELETE FROM tasks WHERE userid = :userId AND isfinished = TRUE
-        ');
-        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-        $stmt->execute();
-    }
 }

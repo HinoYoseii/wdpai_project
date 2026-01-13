@@ -21,63 +21,12 @@ class DashboardController extends AppController {
     }
 
     public function dashboard() {
-        if(!isset($_SESSION['username'])){
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/login");
-            return;
-        }
+        $this->requireLogin();
         
+        $user = $this->getUserCookie();
+        $userId = (int)$user['id'];
+
         return $this->render("dashboard");
-    }
-
-    // Helper methods
-    private function checkAuth(): ?array {
-        if(!isset($_SESSION['username'])){
-            http_response_code(401);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Unauthorized'
-            ]);
-            return null;
-        }
-
-        $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-        if (!$user) {
-            http_response_code(404);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'User not found'
-            ]);
-            return null;
-        }
-
-        return $user;
-    }
-
-    private function getJsonInput(): ?array {
-        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-        
-        if ($contentType !== "application/json") {
-            return null;
-        }
-
-        $content = trim(file_get_contents("php://input"));
-        return json_decode($content, true);
-    }
-
-    private function jsonResponse(string $status, $data = null, string $message = '', int $httpCode = 200): void {
-        http_response_code($httpCode);
-        $response = ['status' => $status];
-        
-        if ($message) {
-            $response['message'] = $message;
-        }
-        
-        if ($data !== null) {
-            $response = array_merge($response, $data);
-        }
-        
-        echo json_encode($response);
     }
 
     // API endpoints
@@ -85,11 +34,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $user = $this->checkAuth();
-            if (!$user) return;
-
-            $userId = $user['userid'];
-            $this->preferencesRepository->ensurePreferencesExist($userId);
+            $this->requireLogin();
 
             $tasks = $this->taskRepository->getUnfinishedTasks($userId);
             $tasksWithScore = $this->calculateTaskPriorities($tasks ?: [], $userId);
@@ -104,8 +49,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $user = $this->checkAuth();
-            if (!$user) return;
+            $this->requireLogin();
 
             $tasks = $this->taskRepository->getFinishedTasks($user['userid']);
 
@@ -119,7 +63,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if (!$this->checkAuth()) return;
+            $this->requireLogin();
 
             $taskId = $_GET['taskId'] ?? null;
             
@@ -145,8 +89,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $user = $this->checkAuth();
-            if (!$user) return;
+            $this->requireLogin();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -183,7 +126,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if (!$this->checkAuth()) return;
+            $this->requireLogin();
 
             $data = $this->getJsonInput();
             if (!$data) {

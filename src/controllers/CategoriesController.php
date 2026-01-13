@@ -15,88 +15,21 @@ class CategoriesController extends AppController {
     }
 
     public function categories() {
-        if(!isset($_SESSION['username'])){
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/login");
-            return;
-        }
-
+        $this->requireLogin();
+        
         return $this->render("categories");
     }
 
-    // Helper methods
-    private function checkAuth(): ?array {
-        if(!isset($_SESSION['username'])){
-            http_response_code(401);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Unauthorized'
-            ]);
-            return null;
-        }
-
-        $user = $this->userRepository->getUserByUsername($_SESSION['username']);
-        if (!$user) {
-            http_response_code(404);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'User not found'
-            ]);
-            return null;
-        }
-
-        return $user;
-    }
-
-    private function getJsonInput(): ?array {
-        if (!$this->isPost()) {
-            http_response_code(405);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Method not allowed'
-            ]);
-            return null;
-        }
-
-        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-        
-        if ($contentType !== "application/json") {
-            http_response_code(415);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Invalid content type'
-            ]);
-            return null;
-        }
-
-        $content = trim(file_get_contents("php://input"));
-        return json_decode($content, true);
-    }
-
-    private function jsonResponse(string $status, $data = null, string $message = '', int $httpCode = 200): void {
-        http_response_code($httpCode);
-        $response = ['status' => $status];
-        
-        if ($message) {
-            $response['message'] = $message;
-        }
-        
-        if ($data !== null) {
-            $response = array_merge($response, $data);
-        }
-        
-        echo json_encode($response);
-    }
-
-    // API endpoints
     public function getCategories() {
         header('Content-Type: application/json');
         
         try {
-            $user = $this->checkAuth();
-            if (!$user) return;
+            $this->requireLogin();
 
-            $categories = $this->categoriesRepository->getCategoriesByUserId($user['userid']);
+            $user = $this->getUserCookie();
+            $userId = $user['id'];
+
+            $categories = $this->categoriesRepository->getCategoriesByUserId($userId);
 
             $this->jsonResponse('success', ['categories' => $categories ?? []]);
         } catch (Exception $e) {
@@ -108,11 +41,16 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $user = $this->checkAuth();
-            if (!$user) return;
+            $this->requireLogin();
+
+            $user = $this->getUserCookie();
+            $userId = $user['id'];
 
             $data = $this->getJsonInput();
-            if (!$data) return;
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid JSON input', 400);
+                return;
+            }
 
             if (!isset($data['categoryName']) || empty(trim($data['categoryName']))) {
                 $this->jsonResponse('error', null, 'Category name is required', 400);
@@ -120,7 +58,7 @@ class CategoriesController extends AppController {
             }
 
             $categoryName = trim($data['categoryName']);
-            $this->categoriesRepository->createCategory($user['userid'], $categoryName);
+            $this->categoriesRepository->createCategory($userId, $categoryName);
 
             $this->jsonResponse('success', null, 'Category created successfully', 201);
         } catch (Exception $e) {
@@ -132,11 +70,16 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $user = $this->checkAuth();
-            if (!$user) return;
+            $this->requireLogin();
+
+            $user = $this->getUserCookie();
+            $userId = (int)$user['id'];
 
             $data = $this->getJsonInput();
-            if (!$data) return;
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid JSON input', 400);
+                return;
+            }
 
             if (!isset($data['categoryId']) || !isset($data['categoryName'])) {
                 $this->jsonResponse('error', null, 'Category ID and name are required', 400);
@@ -147,7 +90,7 @@ class CategoriesController extends AppController {
             $categoryName = trim($data['categoryName']);
 
             // Verify the category belongs to the user
-            if (!$this->categoriesRepository->categoryExists($categoryId, $user['userid'])) {
+            if (!$this->categoriesRepository->categoryExists($categoryId, $userId)) {
                 $this->jsonResponse('error', null, 'Forbidden: Category does not belong to user', 403);
                 return;
             }
@@ -164,11 +107,16 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $user = $this->checkAuth();
-            if (!$user) return;
+            $this->requireLogin();
+
+            $user = $this->getUserCookie();
+            $userId = (int)$user['id'];
 
             $data = $this->getJsonInput();
-            if (!$data) return;
+            if (!$data) {
+                $this->jsonResponse('error', null, 'Invalid JSON input', 400);
+                return;
+            }
 
             if (!isset($data['categoryId'])) {
                 $this->jsonResponse('error', null, 'Category ID is required', 400);
@@ -177,8 +125,7 @@ class CategoriesController extends AppController {
 
             $categoryId = (int)$data['categoryId'];
 
-            // Verify the category belongs to the user
-            if (!$this->categoriesRepository->categoryExists($categoryId, $user['userid'])) {
+            if (!$this->categoriesRepository->categoryExists($categoryId, $userId)) {
                 $this->jsonResponse('error', null, 'Forbidden: Category does not belong to user', 403);
                 return;
             }

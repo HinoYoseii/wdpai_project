@@ -9,7 +9,7 @@ class SecurityController extends AppController
     public function __construct()
     {
         $this->userRepository = UserRepository::getInstance();
-        if(isset($_SESSION['username'])){
+        if($this->isAuthenticated()){
             $url = "http://$_SERVER[HTTP_HOST]";
             header("Location: {$url}/dashboard");
         }
@@ -47,7 +47,12 @@ class SecurityController extends AppController
 
         session_regenerate_id(true);
 
-        $_SESSION['username'] = $userRow['username'];
+        $_SESSION['user'] = [
+            'id' => $userRow['userid'] ?? null,
+            'email' => $userRow['email'] ?? null,
+            'username' => $userRow['username'] ?? null,
+            'role' => $userRow['userrole'] ?? null
+        ];
 
         $url = "http://$_SERVER[HTTP_HOST]";
         header("Location: {$url}/dashboard");
@@ -103,9 +108,22 @@ class SecurityController extends AppController
         if(!$this->isPost()){
             return $this->render('account');
         }
-        setcookie("username", "", time() - 3600, "/");
+        setcookie("user", "", time() - 3600, "/");
         $url = "http://$_SERVER[HTTP_HOST]";
         header("Location: {$url}/login");
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
         
         session_unset(); 
         session_destroy();
