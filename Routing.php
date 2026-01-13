@@ -3,6 +3,7 @@ require_once 'src/controllers/SecurityController.php';
 require_once 'src/controllers/DashboardController.php';
 require_once 'src/controllers/CategoriesController.php';
 require_once 'src/controllers/AccountController.php';
+require_once 'src/controllers/ArchiveController.php';
 
 class Routing {
     private static ?Routing $instance = null;
@@ -41,6 +42,10 @@ class Routing {
             'controller' => 'AccountController',
             'action' => 'account'
         ],
+        'archive' => [
+            'controller' => 'ArchiveController',
+            'action' => 'archive'
+        ],
         'getTasks' => [
             'controller' => 'DashboardController',
             'action' => 'getTasks'
@@ -61,14 +66,6 @@ class Routing {
             'controller' => 'CategoriesController',
             'action' => 'deleteCategory'
         ],
-        'getFinishedTasks' => [
-            'controller' => 'DashboardController',
-            'action' => 'getFinishedTasks'
-        ],
-        'getTask' => [
-            'controller' => 'DashboardController',
-            'action' => 'getTask'
-        ],
         'createTask' => [
             'controller' => 'DashboardController',
             'action' => 'createTask'
@@ -85,14 +82,18 @@ class Routing {
             'controller' => 'DashboardController',
             'action' => 'finishTask'
         ],
-        'unfinishTask' => [
-            'controller' => 'DashboardController',
-            'action' => 'unfinishTask'
-        ],
         'pinTask' => [
             'controller' => 'DashboardController',
             'action' => 'pinTask'
-        ]
+        ],
+        'unfinishTask' => [
+            'controller' => 'ArchiveController',
+            'action' => 'unfinishTask'
+        ],
+        'getFinishedTasks' => [
+            'controller' => 'ArchiveController',
+            'action' => 'getFinishedTasks'
+        ],
     ];
 
     public function run(string $path) {

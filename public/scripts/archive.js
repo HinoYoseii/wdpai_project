@@ -109,7 +109,7 @@ function initializeFilterHandlers() {
 // Tasks
 async function loadTasks() {
     try {
-        const data = await fetchAPI('/getTasks');
+        const data = await fetchAPI('/getFinishedTasks');
 
         tasks = data.tasks || [];
         
@@ -126,7 +126,7 @@ async function loadTasks() {
 
 function displayTasks() {
     if (tasks.length === 0) {
-        elements.todoList.innerHTML = `<p class="empty-message">Brak zadań do wyświetlenia. Dodaj nowe zadanie!</p>`;
+        elements.todoList.innerHTML = `<p class="empty-message">Brak ukończonych zadań.</p>`;
         return;
     }
 
@@ -143,56 +143,28 @@ function createTaskElement(task) {
     listItem.className = 'list-item';
     listItem.dataset.taskId = task.taskid;
 
-    const deadline = task.deadlinedate ? formatDeadline(task.deadlinedate) : 'Brak terminu';
+    const deadline = task.deadlinedate || 'Brak terminu';
     const categoryName = task.categoryname || 'Bez kategorii';
-    const isPinned = task.ispinned === true || task.ispinned === 't';
-    const starIcon = isPinned ? 'star_fill.png' : 'star_empty.png';
     const description = task.taskdescription ? `<p class="description">${escapeHtml(task.taskdescription)}</p>` : '';
-    const priorityScore = task.priorityScore ? `<p>${escapeHtml(task.priorityScore)}</p>`: '';
 
     listItem.innerHTML = `
-        <button class="menu-btn" data-action="pin" data-pinned="${isPinned}" title="${isPinned ? 'Odepnij' : 'Przypnij'}">
-            <img src="public/assets/${starIcon}" class="list-icon" alt="ikona">
-        </button>
         <div class="content">
             <p class="title">${escapeHtml(task.title)}</p>
             ${description}
             <p class="description">Kategoria: ${escapeHtml(categoryName)}</p>
-            <p class="description">Termin: ${deadline}</p>
+            <p class="description">Termin: ${escapeHtml(deadline)}</p>
         </div>
         <div class="action-buttons">
-            <button class="menu-btn" data-action="finish" title="Zakończ zadanie">
-                <img src="public/assets/check.png" class="list-icon" alt="ikona">
+            <button class="menu-btn" data-action="unfinish" title="Przywróć zadanie">
+                <img src="public/assets/undo.png" class="list-icon" alt="ikona">
             </button>
-            <button class="menu-btn" data-action="edit" title="Edytuj">
-                <img src="public/assets/edit.png" class="list-icon" alt="ikona">
-            </button>
-            <button class="menu-btn" data-action="delete" title="Usuń">
+            <button class="menu-btn" data-action="delete" title="Usuń permanentnie">
                 <img src="public/assets/delete.png" class="list-icon" alt="ikona">
             </button>
         </div>
     `;
 
     return listItem;
-}
-
-function formatDeadline(deadlineStr) {
-    const deadline = new Date(deadlineStr);
-    const now = new Date();
-    const diffTime = deadline - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) {
-        return `Spóźnione o ${Math.abs(diffDays)} dni`;
-    } else if (diffDays === 0) {
-        return 'Dzisiaj';
-    } else if (diffDays === 1) {
-        return 'Jutro';
-    } else if (diffDays <= 7) {
-        return `Za ${diffDays} dni`;
-    } else {
-        return deadline.toLocaleDateString('pl-PL');
-    }
 }
 
 // Event delegation for task list
@@ -206,16 +178,6 @@ function initializeTaskListHandlers() {
         const action = button.dataset.action;
 
         switch (action) {
-            case 'pin':
-                const isPinned = button.dataset.pinned === 'true';
-                await pinTask(taskId, !isPinned);
-                break;
-            case 'finish':
-                await finishTask(taskId);
-                break;
-            case 'edit':
-                editTask(taskId);
-                break;
             case 'delete':
                 confirmDeleteTask(taskId);
                 break;
@@ -228,115 +190,14 @@ function initializeTaskListHandlers() {
 
 // Modal handlers
 function initializeModalHandlers() {
-    const addBtn = document.getElementById('addTaskBtn');
-    const addBtnMobile = document.getElementById('addTaskBtnMobile');
-    const cancelBtn = document.getElementById('cancelBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
-    addBtnMobile.addEventListener('click', () => openModal());
-    addBtn.addEventListener('click', () => openModal());
-    cancelBtn.addEventListener('click', closeModal);
     cancelDeleteBtn.addEventListener('click', closeDeleteModal);
     confirmDeleteBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         await deleteTask();
     });
-
-    elements.taskForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await saveTask();
-    });
-}
-
-function openModal(taskId = null) {
-    const modalTitle = document.getElementById('modalTitle');
-    const taskIdInput = document.getElementById('taskId');
-
-    currentTaskId = taskId;
-    
-    if (taskId) {
-        modalTitle.textContent = 'Edytuj zadanie';
-        taskIdInput.value = taskId;
-        loadTaskData(taskId);
-    } else {
-        modalTitle.textContent = 'Dodaj zadanie';
-        taskIdInput.value = '';
-        elements.taskForm.reset();
-    }
-
-    elements.taskModal.style.display = 'flex';
-    document.getElementById('taskTitle').focus();
-}
-
-function closeModal() {
-    elements.taskModal.style.display = 'none';
-    currentTaskId = null;
-}
-
-function loadTaskData(taskId) {
-    const task = tasks.find(t => t.taskid === taskId);
-    
-    if (task) {
-        document.getElementById('taskTitle').value = task.title || '';
-        document.getElementById('taskDescription').value = task.taskdescription || '';
-        document.getElementById('taskCategory').value = task.categoryid || '';
-        
-        if (task.deadlinedate) {
-            const date = new Date(task.deadlinedate);
-            const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-            document.getElementById('taskDeadline').value = localDate.toISOString().slice(0, 16);
-        }
-        
-        document.getElementById('taskFun').value = task.fun || 'medium';
-        document.getElementById('taskDifficulty').value = task.difficulty || 'medium';
-        document.getElementById('taskImportance').value = task.importance || 'medium';
-        document.getElementById('taskTime').value = task.time || 'medium';
-    } else {
-        console.error('Task not found in local array:', taskId);
-    }
-}
-
-async function saveTask() {
-    const taskId = document.getElementById('taskId').value;
-    const title = document.getElementById('taskTitle').value.trim();
-
-    if (!title) {
-        showError('Tytuł zadania jest wymagany');
-        return;
-    }
-
-    const url = taskId ? '/updateTask' : '/createTask';
-    const payload = {
-        title,
-        taskDescription: document.getElementById('taskDescription').value.trim() || null,
-        categoryId: document.getElementById('taskCategory').value ? parseInt(document.getElementById('taskCategory').value) : null,
-        deadlineDate: document.getElementById('taskDeadline').value || null,
-        fun: document.getElementById('taskFun').value,
-        difficulty: document.getElementById('taskDifficulty').value,
-        importance: document.getElementById('taskImportance').value,
-        time: document.getElementById('taskTime').value
-    };
-
-    if (taskId) {
-        payload.taskId = parseInt(taskId);
-    }
-
-    try {
-        await fetchAPI(url, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
-
-        closeModal();
-        await loadTasks();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
-}
-
-function editTask(taskId) {
-    openModal(taskId);
 }
 
 // Delete modal
@@ -367,38 +228,6 @@ async function deleteTask() {
 }
 
 // Task actions
-async function pinTask(taskId, shouldPin) {
-    try {
-        await fetchAPI('/pinTask', {
-            method: 'POST',
-            body: JSON.stringify({ 
-                taskId: parseInt(taskId),
-                isPinned: shouldPin
-            })
-        });
-
-        await loadTasks();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
-}
-
-async function finishTask(taskId) {
-    try {
-        const data = await fetchAPI('/finishTask', {
-            method: 'POST',
-            body: JSON.stringify({ taskId: parseInt(taskId) })
-        });
-
-        await loadTasks();
-        if (data.message) {
-            console.log(data.message);
-        }
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
-}
-
 async function unfinishTask(taskId) {
     try {
         await fetchAPI('/unfinishTask', {

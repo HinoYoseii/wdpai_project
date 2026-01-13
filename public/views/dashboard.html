@@ -17,6 +17,7 @@
         <ul>
             <li><a href="\dashboard">Strona główna</a></li>
             <li><a href="\categories">Kategorie</a></li>
+            <li><a href="\archive">Archiwum</a></li>
             <li class="nav-icon-only">
                 <a href="\account">
                     <img src="public/assets/user_circle.png" alt="Profil">
@@ -31,21 +32,9 @@
             <button class="add-btn" id="addTaskBtn">+ Dodaj zadanie</button>
         </div>
         <hr class="divider">
-        <div class="filters-section">
-            <div class="filter-group">
-                <label for="categoryFilter">Kategoria:</label>
-                <select id="categoryFilter" class="filter-select">
-                    <option value="">Wszystkie kategorie</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="finishedToggle">
-                    <span>Pokaż ukończone</span>
-                </label>
-            </div>
-        </div>
+        <select id="categoryFilter" class="filter-select">
+            <option value="">Wszystkie kategorie</option>
+        </select>
 
         <div id="todoList" class="list"></div>
     </div>

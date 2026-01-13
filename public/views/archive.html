@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/styles/main.css">
     <link rel="stylesheet" href="public/styles/responsive.css">
-    <script src="public/scripts/categories.js" defer></script>
+    <script src="public/scripts/archive.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>Kategorie</title>
+    <title>Archiwum</title>
 </head>
 <body>
     <nav class="nav-default">
@@ -26,13 +26,25 @@
             <li><a href="\account">Profil</a></li>
         </ul>
     </nav>
+    <div class="main-container">
+        <div class="header-section">
+            <h1>TODO Archiwum</h1>
+        </div>
+        <hr class="divider">
+        <select id="categoryFilter" class="filter-select">
+            <option value="">Wszystkie kategorie</option>
+        </select>
+
+        <div id="todoList" class="list"></div>
+    </div>
+
     <footer class="mobile-footer">
         <div class="mobile-footer-content">
             <a href="\dashboard" class="footer-btn">
                 <img src="public/assets/home.png" alt="Home">
             </a>
             
-            <button class="footer-add-btn" id="addCategoryBtnMobile">
+            <button class="footer-add-btn" id="addTaskBtnMobile">
                 <span>+</span>
             </button>
             
@@ -41,40 +53,17 @@
             </a>
         </div>
     </footer>
-    <div class="main-container">
-        <div class="header-section">
-            <h1>Kategorie</h1>
-            <button class="add-btn" id="addCategoryBtn">+ Dodaj kategorię</button>
-        </div>
-        <hr class="divider">
-        <div class="list" id="categoriesList">
-            <p class="loading-message">Ładowanie kategorii...</p>
-        </div>
-    </div>
-
-    <div id="categoryModal" class="modal">
-        <form class="modal-content-form" id="categoryForm" class="modal-form">
-            <h1 id="modalTitle">Dodaj kategorię</h1>
-            <input type="hidden" id="categoryId">
-            <label for="categoryName" class="label">Nazwa kategorii</label>
-            <input type="text" id="categoryName" name="categoryName" placeholder="Podaj nazwę kategorii" required maxlength="255">
-            <div class="form-actions">
-                <button type="submit" class="submit-btn">Zapisz</button>
-                <button type="button" class="cancel-btn" id="cancelBtn">Anuluj</button>
-            </div>
-        </form>
-    </div>
 
     <div id="deleteModal" class="modal">
         <div class="modal-content-form">
             <h1>Potwierdź usunięcie</h1>
-            <p>Czy na pewno chcesz usunąć tę kategorię?</p>
-            <p class="warning">Uwaga: Wszystkie zadania w tej kategorii zostaną bez kategorii.</p>
+            <p>Czy na pewno chcesz usunąć to zadanie?</p>
             <div class="form-actions">
                 <button class="submit-btn" id="confirmDeleteBtn">Usuń</button>
                 <button class="cancel-btn" id="cancelDeleteBtn">Anuluj</button>
             </div>
         </div>
     </div>
+
 </body>
 </html>

@@ -234,7 +234,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if (!$this->checkAuth()) return;
+            $this->requireLogin();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -261,7 +261,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            if (!$this->checkAuth()) return;
+            $this->requireLogin();
 
             $data = $this->getJsonInput();
             if (!$data) {
