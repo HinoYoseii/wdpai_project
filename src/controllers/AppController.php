@@ -39,8 +39,21 @@ class AppController {
         }
 
         if (($this->getUserCookie()['role'] ?? null) !== 'admin') {
-            http_response_code(403);
-            renderError(401, "Unauthorized");
+            $url = "http://$_SERVER[HTTP_HOST]";
+            header("Location: {$url}/error");
+        }
+    }
+
+    protected function requireUser(): void
+    {
+        if (!$this->isAuthenticated()) {
+            $url = "http://$_SERVER[HTTP_HOST]";
+            header("Location: {$url}/login");
+        }
+
+        if (($this->getUserCookie()['role'] ?? null) !== 'user') {
+            $url = "http://$_SERVER[HTTP_HOST]";
+            header("Location: {$url}/admin");
         }
     }
 

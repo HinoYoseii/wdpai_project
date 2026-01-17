@@ -14,7 +14,7 @@ class UserRepository extends Repository
     public function getUsers(): ?array
     {
         $stmt = $this->database->connect()->prepare('
-            SELECT * FROM users;
+            SELECT email, username FROM users WHERE userRole = \'user\'
         ');
         $stmt->execute();
 
@@ -78,14 +78,14 @@ class UserRepository extends Repository
         return $userId;
     }
 
-    public function deleteUserById(int $userid): bool
+    public function deleteUserByEmail(string $email): bool
     {
         $stmt = $this->database->connect()->prepare("
             DELETE FROM users
-            WHERE userid = :userid
+            WHERE email = :email
         ");
 
-        $stmt->bindParam(':userid', $userid, PDO::PARAM_INT);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         return $stmt->execute();
     }
 }

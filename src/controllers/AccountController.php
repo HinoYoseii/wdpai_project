@@ -12,7 +12,7 @@ class AccountController extends AppController {
     }
 
     public function account() {
-        $this->requireLogin();
+        $this->requireUser();
 
         $user = $this->getUserCookie();
         $userId = $user['id'];
@@ -37,7 +37,7 @@ class AccountController extends AppController {
 
     public function updatePrefs(){
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = $user['id'];

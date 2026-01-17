@@ -15,7 +15,7 @@ class CategoriesController extends AppController {
     }
 
     public function categories() {
-        $this->requireLogin();
+        $this->requireUser();
         
         return $this->render("categories");
     }
@@ -24,7 +24,7 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = $user['id'];
@@ -41,7 +41,7 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = $user['id'];
@@ -70,7 +70,7 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = (int)$user['id'];
@@ -107,7 +107,7 @@ class CategoriesController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = (int)$user['id'];

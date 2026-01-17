@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="public/styles/main.css">
+    <link rel="stylesheet" href="public/styles/responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="public/scripts/admin.js" defer></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Admin panel</title>
+</head>
+<body>
+    <nav class="nav-default">
+        <a href="\admin">Unihub</a>
+        <form action="\logout" method="POST">
+            <button style="color:white" class="logout-btn" type="submit">Wyloguj się</button>
+        </form>
+    </nav>
+    <div class="main-container">
+        <h1>Użytkownicy</h1>
+        <hr class="divider">
+        <div id="userList" class="list">
+            <?php foreach ($users as $user): ?>
+                <div class="list-item">
+                    <div class="content">
+                        <h3 class="username"><?= $user['username']?></h3>
+                        <p class="description"><?= $user['email']?></p>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="menu-btn" data-action="delete" title="Usuń">
+                            <img src="public/assets/delete.png" class="list-icon" alt="ikona">
+                        </button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <footer class="mobile-footer">
+        <div class="mobile-footer-content">
+            <a href="\dashboard" class="footer-btn">
+                <img src="public/assets/home.png" alt="Home">
+            </a>
+        </div>
+    </footer>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content-form">
+            <h1>Potwierdź usunięcie</h1>
+            <p>Czy na pewno chcesz usunąć tego użytkownika?</p>
+            <div class="form-actions">
+                <button class="submit-btn" id="confirmDeleteBtn">Usuń</button>
+                <button class="cancel-btn" id="cancelDeleteBtn">Anuluj</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

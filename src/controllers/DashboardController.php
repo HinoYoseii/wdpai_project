@@ -19,7 +19,7 @@ class DashboardController extends AppController {
     }
 
     public function dashboard() {
-        $this->requireLogin();
+        $this->requireUser();
 
         return $this->render("dashboard");
     }
@@ -29,7 +29,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = $user['id'];
@@ -47,7 +47,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = $user['id'];
@@ -64,7 +64,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $taskId = $_GET['taskId'] ?? null;
             
@@ -90,7 +90,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = $user['id'];
@@ -130,7 +130,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -168,7 +168,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -195,7 +195,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $user = $this->getUserCookie();
             $userId = $user['id'];
@@ -234,7 +234,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -261,7 +261,7 @@ class DashboardController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $data = $this->getJsonInput();
             if (!$data) {

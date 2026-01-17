@@ -9,9 +9,13 @@ class SecurityController extends AppController
     public function __construct()
     {
         $this->userRepository = UserRepository::getInstance();
-        if($this->isAuthenticated()){
+        if(($this->getUserCookie()['role'] ?? null) == 'user'){
             $url = "http://$_SERVER[HTTP_HOST]";
             header("Location: {$url}/dashboard");
+        }
+        if(($this->getUserCookie()['role'] ?? null) == 'admin'){
+            $url = "http://$_SERVER[HTTP_HOST]";
+            header("Location: {$url}/admin");
         }
     }
 
@@ -53,7 +57,7 @@ class SecurityController extends AppController
             'username' => $userRow['username'] ?? null,
             'role' => $userRow['userrole'] ?? null
         ];
-
+        
         $url = "http://$_SERVER[HTTP_HOST]";
         header("Location: {$url}/dashboard");
     }

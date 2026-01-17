@@ -4,6 +4,7 @@ require_once 'src/controllers/DashboardController.php';
 require_once 'src/controllers/CategoriesController.php';
 require_once 'src/controllers/AccountController.php';
 require_once 'src/controllers/ArchiveController.php';
+require_once 'src/controllers/AdminController.php';
 
 class Routing {
     private static ?Routing $instance = null;
@@ -45,6 +46,14 @@ class Routing {
         'archive' => [
             'controller' => 'ArchiveController',
             'action' => 'archive'
+        ],
+        'admin' => [
+            'controller' => 'AdminController',
+            'action' => 'admin'
+        ],
+        'deleteUserByEmail' => [
+            'controller' => 'AdminController',
+            'action' => 'deleteUserByEmail'
         ],
         'getTasks' => [
             'controller' => 'DashboardController',

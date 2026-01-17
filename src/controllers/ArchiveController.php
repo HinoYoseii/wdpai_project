@@ -19,7 +19,7 @@ class ArchiveController extends AppController {
     }
 
     public function archive() {
-        $this->requireLogin();
+        $this->requireUser();
 
         return $this->render("archive");
     }
@@ -45,7 +45,7 @@ class ArchiveController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -73,7 +73,7 @@ class ArchiveController extends AppController {
         header('Content-Type: application/json');
         
         try {
-            $this->requireLogin();
+            $this->requireUser();
 
             $data = $this->getJsonInput();
             if (!$data) {
