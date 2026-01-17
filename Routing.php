@@ -94,6 +94,10 @@ class Routing {
             'controller' => 'ArchiveController',
             'action' => 'getFinishedTasks'
         ],
+        'updatePrefs' => [
+            'controller' => 'AccountController',
+            'action' => 'updatePrefs'
+        ]
     ];
 
     public function run(string $path) {

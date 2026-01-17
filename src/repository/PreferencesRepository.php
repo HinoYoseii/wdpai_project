@@ -27,23 +27,9 @@ class PreferencesRepository extends Repository
         return $preferences;
     }
 
-    public function updateDeleteFinishedTasks(
+    public function updatePreferences(
         int $userId,
-        bool $deleteFinishedTasks
-    ): void {
-        $stmt = $this->database->connect()->prepare('
-            UPDATE userpreferences 
-                deletefinishedtasks = ?
-            WHERE userid = ?
-        ');
-        $stmt->execute([
-            $deleteFinishedTasks,
-            $userId
-        ]);
-    }
-
-    public function updateInfluences(
-        int $userId,
+        bool $deleteFinishedTasks,
         float $funInfluence,
         float $difficultyInfluence,
         float $importanceInfluence,
@@ -51,7 +37,8 @@ class PreferencesRepository extends Repository
         float $deadlineInfluence
     ): void {
         $stmt = $this->database->connect()->prepare('
-            UPDATE userpreferences 
+            UPDATE userpreferences
+            SET deletefinishedtasks = ?,
                 funinfluence = ?, 
                 difficultyinfluence = ?, 
                 importanceinfluence = ?, 
@@ -60,6 +47,7 @@ class PreferencesRepository extends Repository
             WHERE userid = ?
         ');
         $stmt->execute([
+            $deleteFinishedTasks,
             $funInfluence,
             $difficultyInfluence,
             $importanceInfluence,

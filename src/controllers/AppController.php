@@ -26,21 +26,22 @@ class AppController {
     protected function requireLogin(): void
     {
         if (!$this->isAuthenticated()) {
-            $this->render('login');
-            exit();
+            $url = "http://$_SERVER[HTTP_HOST]";
+            header("Location: {$url}/login");
         }
     }
 
     protected function requireAdmin(): void
     {
         if (!$this->isAuthenticated()) {
-            $this->render('login');
-            exit();
+            $url = "http://$_SERVER[HTTP_HOST]";
+            header("Location: {$url}/login");
         }
 
         if (($this->getUserCookie()['role'] ?? null) !== 'admin') {
             http_response_code(403);
-            $this->render('404');
+            $url = "http://$_SERVER[HTTP_HOST]";
+            header("Location: {$url}/404");
             exit();
         }
     }

@@ -37,11 +37,11 @@ CREATE TABLE Tasks (
 CREATE TABLE UserPreferences (
     userID INTEGER PRIMARY KEY,
     deleteFinishedTasks BOOLEAN DEFAULT FALSE,
-    funInfluence DECIMAL(3,2) DEFAULT 1.0,
-    difficultyInfluence DECIMAL(3,2) DEFAULT 1.0,
-    importanceInfluence DECIMAL(3,2) DEFAULT 1.0,
-    timeInfluence DECIMAL(3,2) DEFAULT 1.0,
-    deadlineInfluence DECIMAL(3,2) DEFAULT 1.0,
+    funInfluence DECIMAL(3,2) DEFAULT 1.0 CHECK (funInfluence BETWEEN 0 AND 2),
+    difficultyInfluence DECIMAL(3,2) DEFAULT 1.0 CHECK (difficultyInfluence BETWEEN 0 AND 2),
+    importanceInfluence DECIMAL(3,2) DEFAULT 1.0 CHECK (importanceInfluence BETWEEN 0 AND 2),
+    timeInfluence DECIMAL(3,2) DEFAULT 1.0 CHECK (timeInfluence BETWEEN 0 AND 2),
+    deadlineInfluence DECIMAL(3,2) DEFAULT 1.0 CHECK (deadlineInfluence BETWEEN 0 AND 2),
     FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
 );
 
