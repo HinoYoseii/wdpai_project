@@ -21,24 +21,16 @@ class ArchiveController extends AppController {
     public function archive() {
         $this->requireUser();
 
-        return $this->render("archive");
-    }
+        $user = $this->getUserCookie();
+        $userId = $user['id'];
 
-    public function getFinishedTasks() {
-        header('Content-Type: application/json');
-        
-        try {
-            $this->requireLogin();
+        $tasks = $this->taskRepository->getFinishedTasks($userId);
+        $categories = $this->categoryRepository->getCategoriesByUserId($userId);
 
-            $user = $this->getUserCookie();
-            $userId = $user['id'];
-
-            $tasks = $this->taskRepository->getFinishedTasks($userId);
-
-            $this->jsonResponse('success', ['tasks' => $tasks ?: []]);
-        } catch (Exception $e) {
-            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
-        }
+        return $this->render("archive", [
+            'tasks' => $tasks ?? [],
+            'categories' => $categories ?? []
+        ]);
     }
 
     public function deleteTask() {
@@ -67,7 +59,6 @@ class ArchiveController extends AppController {
             $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
     }
-
 
     public function unfinishTask() {
         header('Content-Type: application/json');

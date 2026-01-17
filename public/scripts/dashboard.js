@@ -1,28 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-    loadCategories();
-    loadTasks();
     initializeModalHandlers();
     initializeFilterHandlers();
     initializeTaskListHandlers();
+    formatAllDeadlines();
 });
 
 let currentTaskId = null;
 let taskToDelete = null;
-let currentFilter = null;
-let userCategories = [];
-let tasks = [];
+let allTasks = [];
 
-// Cache DOM elements
 const elements = {
     get todoList() { return document.getElementById('todoList'); },
     get taskModal() { return document.getElementById('taskModal'); },
     get deleteModal() { return document.getElementById('deleteModal'); },
     get taskForm() { return document.getElementById('taskForm'); },
-    get categoryFilter() { return document.getElementById('categoryFilter'); },
-    get categorySelect() { return document.getElementById('taskCategory'); }
+    get categoryFilter() { return document.getElementById('categoryFilter'); }
 };
 
-// Utility functions
+// Store initial tasks data
+document.addEventListener('DOMContentLoaded', () => {
+    const taskItems = document.querySelectorAll('.list-item[data-task-id]');
+    allTasks = Array.from(taskItems).map(item => {
+        return {
+            taskid: parseInt(item.dataset.taskId),
+            categoryid: item.dataset.categoryId ? parseInt(item.dataset.categoryId) : null,
+            title: item.querySelector('.title').textContent,
+            taskdescription: item.querySelector('.description')?.textContent || null,
+            deadlinedate: item.dataset.deadline || null,
+            fun: null,
+            difficulty: null,
+            importance: null,
+            time: null
+        };
+    });
+});
+
 async function fetchAPI(url, options = {}) {
     try {
         const response = await fetch(url, {
@@ -51,131 +63,6 @@ function showError(message) {
     alert(message);
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Categories
-async function loadCategories() {
-    try {
-        const data = await fetchAPI('/getCategories');
-        userCategories = data.categories || [];
-        populateCategoryFilter();
-        populateCategoryDropdown();
-    } catch (error) {
-        console.error('Error loading categories:', error);
-    }
-}
-
-function populateCategoryFilter() {
-    if (!elements.categoryFilter) return;
-
-    elements.categoryFilter.innerHTML = '<option value="">Wszystkie kategorie</option>';
-    
-    userCategories.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category.categoryid;
-        option.textContent = category.categoryname;
-        elements.categoryFilter.appendChild(option);
-    });
-}
-
-function populateCategoryDropdown() {
-    if (!elements.categorySelect) return;
-
-    elements.categorySelect.innerHTML = '<option value="">Bez kategorii</option>';
-    
-    userCategories.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category.categoryid;
-        option.textContent = category.categoryname;
-        elements.categorySelect.appendChild(option);
-    });
-}
-
-// Filters
-function initializeFilterHandlers() {
-    if (elements.categoryFilter) {
-        elements.categoryFilter.addEventListener('change', (e) => {
-            currentFilter = e.target.value ? parseInt(e.target.value) : null;
-            loadTasks();
-        });
-    }
-}
-
-// Tasks
-async function loadTasks() {
-    try {
-        const data = await fetchAPI('/getTasks');
-
-        tasks = data.tasks || [];
-        
-        // Filter by category if selected
-        if (currentFilter) {
-            tasks = tasks.filter(task => task.categoryid == currentFilter);
-        }
-        
-        displayTasks();
-    } catch (error) {
-        elements.todoList.innerHTML = '<p class="error-message">Nie udało się załadować zadań</p>';
-    }
-}
-
-function displayTasks() {
-    if (tasks.length === 0) {
-        elements.todoList.innerHTML = `<p class="empty-message">Brak zadań do wyświetlenia. Dodaj nowe zadanie!</p>`;
-        return;
-    }
-
-    elements.todoList.innerHTML = '';
-
-    tasks.forEach(task => {
-        const listItem = createTaskElement(task);
-        elements.todoList.appendChild(listItem);
-    });
-}
-
-function createTaskElement(task) {
-    const listItem = document.createElement('div');
-    listItem.className = 'list-item';
-    listItem.dataset.taskId = task.taskid;
-
-    const deadline = task.deadlinedate ? formatDeadline(task.deadlinedate) : 'Brak terminu';
-    const categoryName = task.categoryname || 'Bez kategorii';
-    const isPinned = task.ispinned === true || task.ispinned === 't';
-    const starIcon = isPinned ? 'star_fill.png' : 'star_empty.png';
-    const description = task.taskdescription ? `<p class="description">${escapeHtml(task.taskdescription)}</p>` : '';
-    const priorityScore = task.priorityScore ? `<p>${escapeHtml(task.priorityScore)}</p>`: '';
-
-    listItem.innerHTML = `
-        <button class="menu-btn" data-action="pin" data-pinned="${isPinned}" title="${isPinned ? 'Odepnij' : 'Przypnij'}">
-            <img src="public/assets/${starIcon}" class="list-icon" alt="ikona">
-        </button>
-        <div class="content">
-            <p class="title">${escapeHtml(task.title)}</p>
-            ${description}
-            <p class="description">Kategoria: ${escapeHtml(categoryName)}</p>
-            <p class="description">Termin: ${deadline}</p>
-        </div>
-        <div class="action-buttons">
-            <button class="menu-btn" data-action="finish" title="Zakończ zadanie">
-                <img src="public/assets/check.png" class="list-icon" alt="ikona">
-            </button>
-            <button class="menu-btn" data-action="edit" title="Edytuj">
-                <img src="public/assets/edit.png" class="list-icon" alt="ikona">
-            </button>
-            <button class="menu-btn" data-action="delete" title="Usuń">
-                <img src="public/assets/delete.png" class="list-icon" alt="ikona">
-            </button>
-        </div>
-    `;
-
-    return listItem;
-}
-
 function formatDeadline(deadlineStr) {
     const deadline = new Date(deadlineStr);
     const now = new Date();
@@ -195,7 +82,51 @@ function formatDeadline(deadlineStr) {
     }
 }
 
-// Event delegation for task list
+function formatAllDeadlines() {
+    document.querySelectorAll('.deadline-value').forEach(el => {
+        const deadlineStr = el.textContent;
+        if (deadlineStr && deadlineStr !== 'Brak terminu') {
+            el.textContent = formatDeadline(deadlineStr);
+        }
+    });
+}
+
+function initializeFilterHandlers() {
+    if (elements.categoryFilter) {
+        elements.categoryFilter.addEventListener('change', (e) => {
+            const selectedCategoryId = e.target.value;
+            filterTasks(selectedCategoryId);
+        });
+    }
+}
+
+function filterTasks(categoryId) {
+    const taskItems = elements.todoList.querySelectorAll('.list-item');
+    
+    taskItems.forEach(item => {
+        if (!categoryId || item.dataset.categoryId === categoryId) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+
+    // Check if any tasks are visible
+    const visibleTasks = Array.from(taskItems).filter(item => item.style.display !== 'none');
+    const emptyMessage = elements.todoList.querySelector('.empty-message');
+    
+    if (visibleTasks.length === 0) {
+        if (!emptyMessage) {
+            const msg = document.createElement('p');
+            msg.className = 'empty-message';
+            msg.textContent = 'Brak zadań w tej kategorii.';
+            elements.todoList.appendChild(msg);
+        }
+    } else if (emptyMessage) {
+        emptyMessage.remove();
+    }
+}
+
 function initializeTaskListHandlers() {
     elements.todoList.addEventListener('click', async (e) => {
         const button = e.target.closest('.menu-btn');
@@ -214,19 +145,15 @@ function initializeTaskListHandlers() {
                 await finishTask(taskId);
                 break;
             case 'edit':
-                editTask(taskId);
+                editTask(taskId, listItem);
                 break;
             case 'delete':
                 confirmDeleteTask(taskId);
-                break;
-            case 'unfinish':
-                await unfinishTask(taskId);
                 break;
         }
     });
 }
 
-// Modal handlers
 function initializeModalHandlers() {
     const addBtn = document.getElementById('addTaskBtn');
     const addBtnMobile = document.getElementById('addTaskBtnMobile');
@@ -249,16 +176,16 @@ function initializeModalHandlers() {
     });
 }
 
-function openModal(taskId = null) {
+function openModal(taskData = null) {
     const modalTitle = document.getElementById('modalTitle');
     const taskIdInput = document.getElementById('taskId');
 
-    currentTaskId = taskId;
+    currentTaskId = taskData ? taskData.taskid : null;
     
-    if (taskId) {
+    if (taskData) {
         modalTitle.textContent = 'Edytuj zadanie';
-        taskIdInput.value = taskId;
-        loadTaskData(taskId);
+        taskIdInput.value = taskData.taskid;
+        loadTaskData(taskData);
     } else {
         modalTitle.textContent = 'Dodaj zadanie';
         taskIdInput.value = '';
@@ -274,27 +201,37 @@ function closeModal() {
     currentTaskId = null;
 }
 
-function loadTaskData(taskId) {
-    const task = tasks.find(t => t.taskid === taskId);
+function loadTaskData(taskData) {
+    document.getElementById('taskTitle').value = taskData.title || '';
+    document.getElementById('taskDescription').value = taskData.taskdescription || '';
+    document.getElementById('taskCategory').value = taskData.categoryid || '';
     
-    if (task) {
-        document.getElementById('taskTitle').value = task.title || '';
-        document.getElementById('taskDescription').value = task.taskdescription || '';
-        document.getElementById('taskCategory').value = task.categoryid || '';
-        
-        if (task.deadlinedate) {
-            const date = new Date(task.deadlinedate);
-            const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-            document.getElementById('taskDeadline').value = localDate.toISOString().slice(0, 16);
-        }
-        
-        document.getElementById('taskFun').value = task.fun || 'medium';
-        document.getElementById('taskDifficulty').value = task.difficulty || 'medium';
-        document.getElementById('taskImportance').value = task.importance || 'medium';
-        document.getElementById('taskTime').value = task.time || 'medium';
-    } else {
-        console.error('Task not found in local array:', taskId);
+    if (taskData.deadlinedate) {
+        const date = new Date(taskData.deadlinedate);
+        const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        document.getElementById('taskDeadline').value = localDate.toISOString().slice(0, 16);
     }
+    
+    document.getElementById('taskFun').value = taskData.fun || '2';
+    document.getElementById('taskDifficulty').value = taskData.difficulty || '2';
+    document.getElementById('taskImportance').value = taskData.importance || '2';
+    document.getElementById('taskTime').value = taskData.time || '2';
+}
+
+function editTask(taskId, listItem) {
+    const taskData = {
+        taskid: taskId,
+        title: listItem.querySelector('.title').textContent,
+        taskdescription: listItem.querySelectorAll('.description')[0]?.textContent || '',
+        categoryid: listItem.dataset.categoryId || '',
+        deadlinedate: listItem.dataset.deadline || null,
+        fun: '2',
+        difficulty: '2',
+        importance: '2',
+        time: '2'
+    };
+    
+    openModal(taskData);
 }
 
 async function saveTask() {
@@ -329,17 +266,12 @@ async function saveTask() {
         });
 
         closeModal();
-        await loadTasks();
+        location.reload();
     } catch (error) {
         // Error already handled by fetchAPI
     }
 }
 
-function editTask(taskId) {
-    openModal(taskId);
-}
-
-// Delete modal
 function confirmDeleteTask(taskId) {
     taskToDelete = taskId;
     elements.deleteModal.style.display = 'flex';
@@ -360,13 +292,12 @@ async function deleteTask() {
         });
 
         closeDeleteModal();
-        await loadTasks();
+        location.reload();
     } catch (error) {
         // Error already handled by fetchAPI
     }
 }
 
-// Task actions
 async function pinTask(taskId, shouldPin) {
     try {
         await fetchAPI('/pinTask', {
@@ -377,7 +308,7 @@ async function pinTask(taskId, shouldPin) {
             })
         });
 
-        await loadTasks();
+        location.reload();
     } catch (error) {
         // Error already handled by fetchAPI
     }
@@ -385,28 +316,12 @@ async function pinTask(taskId, shouldPin) {
 
 async function finishTask(taskId) {
     try {
-        const data = await fetchAPI('/finishTask', {
+        await fetchAPI('/finishTask', {
             method: 'POST',
             body: JSON.stringify({ taskId: parseInt(taskId) })
         });
 
-        await loadTasks();
-        if (data.message) {
-            console.log(data.message);
-        }
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
-}
-
-async function unfinishTask(taskId) {
-    try {
-        await fetchAPI('/unfinishTask', {
-            method: 'POST',
-            body: JSON.stringify({ taskId: parseInt(taskId) })
-        });
-
-        await loadTasks();
+        location.reload();
     } catch (error) {
         // Error already handled by fetchAPI
     }

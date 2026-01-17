@@ -21,69 +21,18 @@ class DashboardController extends AppController {
     public function dashboard() {
         $this->requireUser();
 
-        return $this->render("dashboard");
-    }
+        $user = $this->getUserCookie();
+        $userId = $user['id'];
 
-    // API endpoints
-    public function getTasks() {
-        header('Content-Type: application/json');
-        
-        try {
-            $this->requireUser();
+        // Load tasks and categories
+        $tasks = $this->taskRepository->getUnfinishedTasks($userId);
+        $tasksWithScore = $this->calculateTaskPriorities($tasks ?: [], $userId);
+        $categories = $this->categoryRepository->getCategoriesByUserId($userId);
 
-            $user = $this->getUserCookie();
-            $userId = $user['id'];
-
-            $tasks = $this->taskRepository->getUnfinishedTasks($userId);
-            $tasksWithScore = $this->calculateTaskPriorities($tasks ?: [], $userId);
-
-            $this->jsonResponse('success', ['tasks' => $tasksWithScore]);
-        } catch (Exception $e) {
-            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
-        }
-    }
-
-    public function getFinishedTasks() {
-        header('Content-Type: application/json');
-        
-        try {
-            $this->requireUser();
-
-            $user = $this->getUserCookie();
-            $userId = $user['id'];
-
-            $tasks = $this->taskRepository->getFinishedTasks($userId);
-
-            $this->jsonResponse('success', ['tasks' => $tasks ?: []]);
-        } catch (Exception $e) {
-            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
-        }
-    }
-
-    public function getTask() {
-        header('Content-Type: application/json');
-        
-        try {
-            $this->requireUser();
-
-            $taskId = $_GET['taskId'] ?? null;
-            
-            if (!$taskId) {
-                $this->jsonResponse('error', null, 'Task ID is required', 400);
-                return;
-            }
-
-            $task = $this->taskRepository->getTask((int)$taskId);
-
-            if (!$task) {
-                $this->jsonResponse('error', null, 'Task not found', 404);
-                return;
-            }
-
-            $this->jsonResponse('success', ['task' => $task]);
-        } catch (Exception $e) {
-            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
-        }
+        return $this->render("dashboard", [
+            'tasks' => $tasksWithScore,
+            'categories' => $categories ?? []
+        ]);
     }
 
     public function createTask() {

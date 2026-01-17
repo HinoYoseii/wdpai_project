@@ -33,9 +33,43 @@
         <hr class="divider">
         <select id="categoryFilter" class="filter-select">
             <option value="">Wszystkie kategorie</option>
+            <?php foreach ($categories as $category): ?>
+                <option value="<?= htmlspecialchars($category['categoryid']) ?>">
+                    <?= htmlspecialchars($category['categoryname']) ?>
+                </option>
+            <?php endforeach; ?>
         </select>
 
-        <div id="todoList" class="list"></div>
+        <div id="todoList" class="list">
+            <?php if (empty($tasks)): ?>
+                <p class="empty-message">Brak ukończonych zadań.</p>
+            <?php else: ?>
+                <?php foreach ($tasks as $task): 
+                    $deadline = $task['deadlinedate'] ?? 'Brak terminu';
+                    $categoryName = $task['categoryname'] ?? 'Bez kategorii';
+                    $description = $task['taskdescription'] ? '<p class="description">' . htmlspecialchars($task['taskdescription']) . '</p>' : '';
+                ?>
+                    <div class="list-item" 
+                         data-task-id="<?= htmlspecialchars($task['taskid']) ?>"
+                         data-category-id="<?= htmlspecialchars($task['categoryid'] ?? '') ?>">
+                        <div class="content">
+                            <p class="title"><?= htmlspecialchars($task['title']) ?></p>
+                            <?= $description ?>
+                            <p class="description">Kategoria: <?= htmlspecialchars($categoryName) ?></p>
+                            <p class="description">Termin: <?= htmlspecialchars($deadline) ?></p>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="menu-btn" data-action="unfinish" title="Przywróć zadanie">
+                                <img src="public/assets/undo.png" class="list-icon" alt="ikona">
+                            </button>
+                            <button class="menu-btn" data-action="delete" title="Usuń permanentnie">
+                                <img src="public/assets/delete.png" class="list-icon" alt="ikona">
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
     </div>
 
     <footer class="mobile-footer">

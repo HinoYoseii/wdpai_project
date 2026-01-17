@@ -34,8 +34,51 @@
         <hr class="divider">
         <select id="categoryFilter" class="filter-select">
             <option value="">Wszystkie kategorie</option>
+            <?php foreach ($categories as $category): ?>
+                <option value="<?= htmlspecialchars($category['categoryid']) ?>">
+                    <?= htmlspecialchars($category['categoryname']) ?>
+                </option>
+            <?php endforeach; ?>
         </select>
-        <div id="todoList" class="list"></div>
+        <div id="todoList" class="list">
+            <?php if (empty($tasks)): ?>
+                <p class="empty-message">Brak zadań do wyświetlenia. Dodaj nowe zadanie!</p>
+            <?php else: ?>
+                <?php foreach ($tasks as $task): 
+                    $deadline = $task['deadlinedate'] ? 'data-deadline="' . htmlspecialchars($task['deadlinedate']) . '"' : '';
+                    $categoryName = $task['categoryname'] ?? 'Bez kategorii';
+                    $isPinned = $task['ispinned'] === true || $task['ispinned'] === 't';
+                    $starIcon = $isPinned ? 'star_fill.png' : 'star_empty.png';
+                    $description = $task['taskdescription'] ? '<p class="description">' . htmlspecialchars($task['taskdescription']) . '</p>' : '';
+                ?>
+                    <div class="list-item" 
+                         data-task-id="<?= htmlspecialchars($task['taskid']) ?>"
+                         data-category-id="<?= htmlspecialchars($task['categoryid'] ?? '') ?>"
+                         <?= $deadline ?>>
+                        <button class="menu-btn" data-action="pin" data-pinned="<?= $isPinned ? 'true' : 'false' ?>" title="<?= $isPinned ? 'Odepnij' : 'Przypnij' ?>">
+                            <img src="public/assets/<?= $starIcon ?>" class="list-icon" alt="ikona">
+                        </button>
+                        <div class="content">
+                            <p class="title"><?= htmlspecialchars($task['title']) ?></p>
+                            <?= $description ?>
+                            <p class="description">Kategoria: <?= htmlspecialchars($categoryName) ?></p>
+                            <p class="description deadline-text">Termin: <span class="deadline-value"><?= $task['deadlinedate'] ? htmlspecialchars($task['deadlinedate']) : 'Brak terminu' ?></span></p>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="menu-btn" data-action="finish" title="Zakończ zadanie">
+                                <img src="public/assets/check.png" class="list-icon" alt="ikona">
+                            </button>
+                            <button class="menu-btn" data-action="edit" title="Edytuj">
+                                <img src="public/assets/edit.png" class="list-icon" alt="ikona">
+                            </button>
+                            <button class="menu-btn" data-action="delete" title="Usuń">
+                                <img src="public/assets/delete.png" class="list-icon" alt="ikona">
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
     </div>
 
     <footer class="mobile-footer">
@@ -68,6 +111,11 @@
             <label for="taskCategory">Kategoria</label>
             <select id="taskCategory" class="form-select">
                 <option value="">Bez kategorii</option>
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?= htmlspecialchars($category['categoryid']) ?>">
+                        <?= htmlspecialchars($category['categoryname']) ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
  
             <label for="taskDeadline">Termin</label>
