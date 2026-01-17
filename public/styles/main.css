@@ -438,6 +438,7 @@ nav > ul {
 
 .footer-add-btn {
     background-color: var(--color-secondary);
+    color: #d2f2d0;
     border-radius: 50%;
     width: 48px;
     height: 48px;
@@ -580,7 +581,7 @@ nav > ul {
 /* Divider */
 .divider {
     margin: 0.5rem 0;
-    border-top: 3px solid var(--color-gray);
+    border: 1px solid var(--color-gray);
     border-radius: 3px;
 }
 

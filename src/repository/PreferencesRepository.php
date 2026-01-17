@@ -27,17 +27,22 @@ class PreferencesRepository extends Repository
         return $preferences;
     }
 
-    public function getPreferencesObject(int $userId): ?array{
-        $prefs = $this->getPreferences($userId);
-
-        if (!$prefs) {
-            return null;
-        }
-
-        return $prefs;
+    public function updateDeleteFinishedTasks(
+        int $userId,
+        bool $deleteFinishedTasks
+    ): void {
+        $stmt = $this->database->connect()->prepare('
+            UPDATE userpreferences 
+                deletefinishedtasks = ?
+            WHERE userid = ?
+        ');
+        $stmt->execute([
+            $deleteFinishedTasks,
+            $userId
+        ]);
     }
 
-    public function updatePreferences(
+    public function updateInfluences(
         int $userId,
         float $funInfluence,
         float $difficultyInfluence,
@@ -62,41 +67,5 @@ class PreferencesRepository extends Repository
             $deadlineInfluence,
             $userId
         ]);
-    }
-
-    public function updateInfluences(
-        int $userId,
-        float $funInfluence,
-        float $difficultyInfluence,
-        float $importanceInfluence,
-        float $timeInfluence,
-        float $deadlineInfluence
-    ): void {
-        $stmt = $this->database->connect()->prepare('
-            UPDATE userpreferences 
-            SET funinfluence = ?, 
-                difficultyinfluence = ?, 
-                importanceinfluence = ?, 
-                timeinfluence = ?, 
-                deadlineinfluence = ?
-            WHERE userid = ?
-        ');
-        $stmt->execute([
-            $funInfluence,
-            $difficultyInfluence,
-            $importanceInfluence,
-            $timeInfluence,
-            $deadlineInfluence,
-            $userId
-        ]);
-    }
-
-    public function deletePreferences(int $userId): void
-    {
-        $stmt = $this->database->connect()->prepare('
-            DELETE FROM userpreferences WHERE userid = :userId
-        ');
-        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-        $stmt->execute();
     }
 }

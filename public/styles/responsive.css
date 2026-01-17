@@ -14,7 +14,7 @@
     }
     
     .main-container {
-        height: calc(100vh - 14vh);
+        height: calc(100vh - 120px);
         padding: 0;
         margin-bottom: 7vh;
     }
@@ -116,4 +116,10 @@
         height: 0px;
         width: 0px;
     }
+
+    .filter-select {
+        width: 90vw;
+        align-self: center;
+    }
+
 }
