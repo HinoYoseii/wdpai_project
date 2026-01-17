@@ -48,7 +48,25 @@
         </div>
         <hr class="divider">
         <div class="list" id="categoriesList">
-            <p class="loading-message">Ładowanie kategorii...</p>
+            <?php if (empty($categories)): ?>
+                <p class="empty-message">Brak kategorii. Dodaj swoją pierwszą kategorię!</p>
+            <?php else: ?>
+                <?php foreach ($categories as $category): ?>
+                    <div class="list-item" data-category-id="<?= htmlspecialchars($category['categoryid']) ?>" data-category-name="<?= htmlspecialchars($category['categoryname']) ?>">
+                        <div class="content">
+                            <h3 class="category-name"><?= htmlspecialchars($category['categoryname']) ?></h3>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="menu-btn" data-action="edit" title="Edytuj">
+                                <img src="public/assets/edit.png" class="list-icon" alt="ikona">
+                            </button>
+                            <button class="menu-btn" data-action="delete" title="Usuń">
+                                <img src="public/assets/delete.png" class="list-icon" alt="ikona">
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 

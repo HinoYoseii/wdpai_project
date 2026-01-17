@@ -1,14 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    loadCategories();
     initializeModalHandlers();
     initializeCategoryListHandlers();
 });
 
 let currentCategoryId = null;
 let categoryToDelete = null;
-let categories = [];
 
-// Cache DOM elements
 const elements = {
     get categoriesList() { return document.getElementById('categoriesList'); },
     get categoryModal() { return document.getElementById('categoryModal'); },
@@ -16,7 +13,6 @@ const elements = {
     get categoryForm() { return document.getElementById('categoryForm'); }
 };
 
-// Utility functions
 async function fetchAPI(url, options = {}) {
     try {
         const response = await fetch(url, {
@@ -45,64 +41,6 @@ function showError(message) {
     alert(message);
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Categories
-async function loadCategories() {
-    try {
-        const data = await fetchAPI('/getCategories');
-        categories = data.categories || [];
-        console.log(data.categories);
-        
-        displayCategories();
-    } catch (error) {
-        elements.categoriesList.innerHTML = '<p class="error-message">Nie udało się załadować kategorii</p>';
-    }
-}
-
-function displayCategories() {
-    if (!categories || categories.length === 0) {
-        elements.categoriesList.innerHTML = '<p class="empty-message">Brak kategorii. Dodaj swoją pierwszą kategorię!</p>';
-        return;
-    }
-
-    elements.categoriesList.innerHTML = '';
-
-    categories.forEach(category => {
-        const categoryItem = createCategoryElement(category);
-        elements.categoriesList.appendChild(categoryItem);
-    });
-}
-
-function createCategoryElement(category) {
-    const categoryItem = document.createElement('div');
-    categoryItem.className = 'list-item';
-    categoryItem.dataset.categoryId = category.categoryid;
-    categoryItem.dataset.categoryName = category.categoryname;
-
-    categoryItem.innerHTML = `
-        <div class="content">
-            <h3 class="category-name">${escapeHtml(category.categoryname)}</h3>
-        </div>
-        <div class="action-buttons">
-            <button class="menu-btn" data-action="edit" title="Edytuj">
-                <img src="public/assets/edit.png" class="list-icon" alt="ikona">
-            </button>
-            <button class="menu-btn" data-action="delete" title="Usuń">
-                <img src="public/assets/delete.png" class="list-icon" alt="ikona">
-            </button>
-        </div>
-    `;
-
-    return categoryItem;
-}
-
-// Event delegation for category list
 function initializeCategoryListHandlers() {
     elements.categoriesList.addEventListener('click', (e) => {
         const button = e.target.closest('.menu-btn');
@@ -124,7 +62,6 @@ function initializeCategoryListHandlers() {
     });
 }
 
-// Modal handlers
 function initializeModalHandlers() {
     const addBtn = document.getElementById('addCategoryBtn');
     const addBtnMobile = document.getElementById('addCategoryBtnMobile');
@@ -198,13 +135,12 @@ async function saveCategory() {
         });
 
         closeModal();
-        await loadCategories();
+        location.reload();
     } catch (error) {
         // Error already handled by fetchAPI
     }
 }
 
-// Delete modal
 function confirmDeleteCategory(categoryId) {
     categoryToDelete = categoryId;
     elements.deleteModal.style.display = 'flex';
@@ -225,7 +161,7 @@ async function deleteCategory() {
         });
 
         closeDeleteModal();
-        await loadCategories();
+        location.reload();
     } catch (error) {
         // Error already handled by fetchAPI
     }

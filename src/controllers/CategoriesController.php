@@ -17,24 +17,14 @@ class CategoriesController extends AppController {
     public function categories() {
         $this->requireUser();
         
-        return $this->render("categories");
-    }
+        $user = $this->getUserCookie();
+        $userId = $user['id'];
 
-    public function getCategories() {
-        header('Content-Type: application/json');
+        $categories = $this->categoriesRepository->getCategoriesByUserId($userId);
         
-        try {
-            $this->requireUser();
-
-            $user = $this->getUserCookie();
-            $userId = $user['id'];
-
-            $categories = $this->categoriesRepository->getCategoriesByUserId($userId);
-
-            $this->jsonResponse('success', ['categories' => $categories ?? []]);
-        } catch (Exception $e) {
-            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
-        }
+        return $this->render("categories", [
+            'categories' => $categories ?? []
+        ]);
     }
 
     public function createCategory() {
@@ -89,7 +79,6 @@ class CategoriesController extends AppController {
             $categoryId = (int)$data['categoryId'];
             $categoryName = trim($data['categoryName']);
 
-            // Verify the category belongs to the user
             if (!$this->categoriesRepository->categoryExists($categoryId, $userId)) {
                 $this->jsonResponse('error', null, 'Forbidden: Category does not belong to user', 403);
                 return;
