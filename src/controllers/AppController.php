@@ -40,16 +40,14 @@ class AppController {
 
         if (($this->getUserCookie()['role'] ?? null) !== 'admin') {
             http_response_code(403);
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/404");
-            exit();
+            renderError(401, "Unauthorized");
         }
     }
 
     protected function render(string $template = null, array $variables = [])
     {
         $templatePath = 'public/views/'. $template.'.html';
-        $templatePath404 = 'public/views/404.html';
+        $templatePath404 = 'public/views/error.html';
         $output = "";
                  
         if(file_exists($templatePath)){
@@ -91,4 +89,11 @@ class AppController {
         echo json_encode($response);
     }
 
+    protected function renderError(int $err_code, string $err_msg){
+        http_response_code($err_code);
+        return $this->render("error", [
+            'err_code' => $err_code,
+            'err_msg' => $err_msg
+        ]);
+    }
 }

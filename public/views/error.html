@@ -8,15 +8,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>404</title>
+    <title><?= $err_code ?? '404' ?></title>
 </head>
 <body class="main-container-center">
     <nav class="nav-default nav-small">
         <a href="\dashboard">Unihub</a>
     </nav>
     <div class="error-container">
-        <h1>404</h1>
-        <p>Strona nie została znaleziona.</p>
+        <h1><?= $err_code ?? '404' ?></h1>
+        <p><?= $err_msg ?? 'Strona nie została znaleziona.' ?></p>
         <a href="\dashboard">Powrót do strony głownej.</a>
     </div>  
 </body>

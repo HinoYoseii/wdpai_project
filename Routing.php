@@ -129,6 +129,6 @@ class Routing {
             }
         }
 
-        include 'public/views/404.html';
+        include 'public/views/error.html';
     }
 }

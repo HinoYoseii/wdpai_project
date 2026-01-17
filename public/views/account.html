@@ -37,19 +37,26 @@
         </div>
     </footer>
     <div class="main-container">
-        <form action="\updatePrefs" method="POST">
-            <label class="toggle-label" for="finished">Delete Finished Tasks</label>
-            <input type="checkbox" name="finished" id="finished" value="1" <?= $finished ? 'checked' : ''?>>
-
-            <?php foreach ($influences as $inf): ?>
-                <label><?= htmlspecialchars($inf['name']) ?></label>
-                <span><?= htmlspecialchars($inf['value']) ?></span>
-                <input type="range" name="<?= htmlspecialchars($inf['key']) ?>" min="0" max="2" step="0.1" value="<?= htmlspecialchars($inf['value']) ?>"> 
-            <?php endforeach; ?>
-            
-            <button class="submit-btn" type="submit">Zapisz zmiany</button>
-        </form>
+        <h1>Preferencje</h1>
+        <hr class="divider">
+        <div style="display:flex; justify-content:center; align-items: center; height: 100%;">
+            <form class="form-preferences" method="POST">
+                <div class="form-row-left">
+                    <input class="checkbox" type="checkbox" name="finished" id="finished" value="1" <?= $finished ? 'checked' : ''?>>
+                    <label style="margin-bottom: 0;"><h3>Usuń ukończone zadania</h3></label>
+                </div>
+                
+                <?php foreach ($influences as $inf): ?>
+                    <label><h3><?= htmlspecialchars($inf['name']) ?></h3></label>
+                    <span class="multiplier">Mnożnik x<?= htmlspecialchars($inf['value']) ?></span>
+                    <input type="range" name="<?= htmlspecialchars($inf['key']) ?>" min="0" max="2" step="0.1" value="<?= htmlspecialchars($inf['value']) ?>"> 
+                <?php endforeach; ?>
+                
+                <button class="submit-btn" type="submit">Zapisz zmiany</button>
+            </form>
+        </div>
         
+        <hr class="divider">
         <form action="\logout" method="POST">
             <button class="logout-btn" type="submit">Wyloguj się</button>
         </form>

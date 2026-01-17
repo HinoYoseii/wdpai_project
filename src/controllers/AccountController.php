@@ -21,13 +21,12 @@ class AccountController extends AppController {
 
         $finished = !empty($preferences) ? array_shift($preferences) : null;
 
-        // Structure influences with proper names
         $influences = [
-            ['name' => 'jest mnożona przez', 'key' => 'funInfluence', 'value' => $preferences['funinfluence'] ?? 1.0],
-            ['name' => 'Trudność jest mnożona przez', 'key' => 'difficultyInfluence', 'value' => $preferences['difficultyinfluence'] ?? 1.0],
-            ['name' => 'Istotnośc jest mnożona przez', 'key' => 'importanceInfluence', 'value' => $preferences['importanceinfluence'] ?? 1.0],
-            ['name' => 'Długość zadania jest mnożona przez', 'key' => 'timeInfluence', 'value' => $preferences['timeinfluence'] ?? 1.0],
-            ['name' => 'Dni pozostałe do terminu są mnożone przez', 'key' => 'deadlineInfluence', 'value' => $preferences['deadlineinfluence'] ?? 1.0],
+            ['name' => 'Zabawa', 'key' => 'funInfluence', 'value' => $preferences['funinfluence'] ?? 1.0],
+            ['name' => 'Trudność', 'key' => 'difficultyInfluence', 'value' => $preferences['difficultyinfluence'] ?? 1.0],
+            ['name' => 'Istotność', 'key' => 'importanceInfluence', 'value' => $preferences['importanceinfluence'] ?? 1.0],
+            ['name' => 'Długość', 'key' => 'timeInfluence', 'value' => $preferences['timeinfluence'] ?? 1.0],
+            ['name' => 'Deadline', 'key' => 'deadlineInfluence', 'value' => $preferences['deadlineinfluence'] ?? 1.0],
         ];
 
         return $this->render("account", [
@@ -43,7 +42,6 @@ class AccountController extends AppController {
             $user = $this->getUserCookie();
             $userId = $user['id'];
 
-            // Get form data
             $finished = isset($_POST['finished']) ? true : false;
             $funInfluence = (float)($_POST['funInfluence'] ?? 1.0);
             $difficultyInfluence = (float)($_POST['difficultyInfluence'] ?? 1.0);
@@ -51,7 +49,6 @@ class AccountController extends AppController {
             $timeInfluence = (float)($_POST['timeInfluence'] ?? 1.0);
             $deadlineInfluence = (float)($_POST['deadlineInfluence'] ?? 1.0);
 
-            // Validate ranges (0 to 2)
             $influences = [
                 $funInfluence, 
                 $difficultyInfluence, 
@@ -67,7 +64,6 @@ class AccountController extends AppController {
                 }
             }
 
-            // Update preferences
             $this->preferencesRepository->updatePreferences(
                 $userId,
                 $finished,
@@ -77,8 +73,10 @@ class AccountController extends AppController {
                 $timeInfluence,
                 $deadlineInfluence
             );
-
-            header('Location: /account');
+            
+            // Add success response
+            $this->jsonResponse('success', null, 'Preferencje zostały zaktualizowane', 200);
+            
         } catch (Exception $e) {
             $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
         }
