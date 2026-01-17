@@ -37,9 +37,12 @@
         </div>
     </footer>
     <div class="main-container">
-        <h1>Preferencje</h1>
+        <div class="header-section">
+            <h1>Preferencje</h1>
+        </div>
+        
         <hr class="divider">
-        <div style="display:flex; justify-content:center; align-items: center; height: 100%;">
+        <div class="preferences-container">
             <form class="form-preferences" method="POST">
                 <div class="form-row-left">
                     <input class="checkbox" type="checkbox" name="finished" id="finished" value="1" <?= $finished ? 'checked' : ''?>>
@@ -55,9 +58,8 @@
                 <button class="submit-btn" type="submit">Zapisz zmiany</button>
             </form>
         </div>
-        
         <hr class="divider">
-        <form action="\logout" method="POST">
+        <form class="logout-form" action="\logout" method="POST">
             <button class="logout-btn" type="submit">Wyloguj się</button>
         </form>
     </div>

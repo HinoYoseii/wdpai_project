@@ -12,14 +12,16 @@
     <title>Admin panel</title>
 </head>
 <body>
-    <nav class="nav-default">
+    <nav class="nav-default nav-center">
         <a href="\admin">Unihub</a>
         <form action="\logout" method="POST">
             <button style="color:white" class="logout-btn" type="submit">Wyloguj się</button>
         </form>
     </nav>
     <div class="main-container">
-        <h1>Użytkownicy</h1>
+        <div class="header-section">
+            <h1>Użytkownicy</h1>
+        </div>
         <hr class="divider">
         <div id="userList" class="list">
             <?php foreach ($users as $user): ?>
@@ -40,9 +42,9 @@
 
     <footer class="mobile-footer">
         <div class="mobile-footer-content">
-            <a href="\dashboard" class="footer-btn">
-                <img src="public/assets/home.png" alt="Home">
-            </a>
+            <form action="\logout" method="POST">
+                <button style="color:white" class="logout-btn" type="submit">Wyloguj się</button>
+            </form>
         </div>
     </footer>
 

@@ -12,11 +12,13 @@
         width: 100%;
         max-width: 100vw;
     }
+    .nav-center{
+        justify-content: center;
+    }
     
     .main-container {
         height: calc(100vh - 120px);
         padding: 0;
-        margin-bottom: 7vh;
     }
 
     .main-container-center{
@@ -54,6 +56,9 @@
     }
     
     nav ul li:not(.nav-icon-only) {
+        display: none;
+    }
+    nav .logout-btn {
         display: none;
     }
     
@@ -122,4 +127,17 @@
         align-self: center;
     }
 
+    .form-preferences{
+        gap:2vh;
+    }
+
+    .preferences-container{
+        align-items: flex-start;
+    }
+    
+    .logout-form{
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
 }
