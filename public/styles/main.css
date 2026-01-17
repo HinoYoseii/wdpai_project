@@ -97,6 +97,22 @@ a:hover {
     text-decoration: underline;
 }
 
+.fake-btn {
+    display:none;
+    font-size: 1rem;
+    font-weight: 500;
+    width: 90vw;
+    align-self: center;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background-color var(--transition-normal);
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+.fake-btn:hover {
+    background-color: var(--color-primary-dark);
+}
+
 /* Buttons */
 button {
     font-size: 1rem;
