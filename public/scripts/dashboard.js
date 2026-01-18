@@ -27,10 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
             title: item.querySelector('.title').textContent,
             taskdescription: item.querySelector('.description')?.textContent || null,
             deadlinedate: item.dataset.deadline || null,
-            fun: null,
-            difficulty: null,
-            importance: null,
-            time: null
+            fun: item.dataset.fun,
+            difficulty: item.dataset.difficulty,
+            importance: item.dataset.importance,
+            time: item.dataset.time
         };
     });
 });
@@ -182,9 +182,22 @@ function openModal(taskData = null) {
     currentTaskId = taskData ? taskData.taskid : null;
     
     if (taskData) {
+        console.log(taskData);
         modalTitle.textContent = 'Edytuj zadanie';
         taskIdInput.value = taskData.taskid;
-        loadTaskData(taskData);
+        document.getElementById('taskTitle').value = taskData.title || '';
+        document.getElementById('taskDescription').value = taskData.taskdescription || '';
+        document.getElementById('taskCategory').value = taskData.categoryid || '';
+        
+        if (taskData.deadlinedate) {
+            const date = new Date(taskData.deadlinedate);
+            const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+            document.getElementById('taskDeadline').value = localDate.toISOString().slice(0, 16);
+        }
+        document.getElementById('taskFun').value = taskData.fun || '2';
+        document.getElementById('taskDifficulty').value = taskData.difficulty || '2';
+        document.getElementById('taskImportance').value = taskData.importance || '2';
+        document.getElementById('taskTime').value = taskData.time || '2';
     } else {
         modalTitle.textContent = 'Dodaj zadanie';
         taskIdInput.value = '';
@@ -200,23 +213,6 @@ function closeModal() {
     currentTaskId = null;
 }
 
-function loadTaskData(taskData) {
-    document.getElementById('taskTitle').value = taskData.title || '';
-    document.getElementById('taskDescription').value = taskData.taskdescription || '';
-    document.getElementById('taskCategory').value = taskData.categoryid || '';
-    
-    if (taskData.deadlinedate) {
-        const date = new Date(taskData.deadlinedate);
-        const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-        document.getElementById('taskDeadline').value = localDate.toISOString().slice(0, 16);
-    }
-    
-    document.getElementById('taskFun').value = taskData.fun || '2';
-    document.getElementById('taskDifficulty').value = taskData.difficulty || '2';
-    document.getElementById('taskImportance').value = taskData.importance || '2';
-    document.getElementById('taskTime').value = taskData.time || '2';
-}
-
 function editTask(taskId, listItem) {
     const taskData = {
         taskid: taskId,
@@ -224,10 +220,10 @@ function editTask(taskId, listItem) {
         taskdescription: listItem.querySelectorAll('.description')[0]?.textContent || '',
         categoryid: listItem.dataset.categoryId || '',
         deadlinedate: listItem.dataset.deadline || null,
-        fun: '2',
-        difficulty: '2',
-        importance: '2',
-        time: '2'
+        fun: listItem.dataset.fun,
+        difficulty: listItem.dataset.difficulty,
+        importance: listItem.dataset.importance,
+        time: listItem.dataset.time
     };
     
     openModal(taskData);

@@ -50,18 +50,21 @@
                     $categoryName = $task['categoryname'] ?? 'Bez kategorii';
                     $isPinned = $task['ispinned'] === true || $task['ispinned'] === 't';
                     $starIcon = $isPinned ? 'star_fill.png' : 'star_empty.png';
-                    $description = $task['taskdescription'] ? '<p class="description">' . htmlspecialchars($task['taskdescription']) . '</p>' : '';
                 ?>
                     <div class="list-item" 
                          data-task-id="<?= htmlspecialchars($task['taskid']) ?>"
                          data-category-id="<?= htmlspecialchars($task['categoryid'] ?? '') ?>"
+                         data-fun="<?=$task['fun']?>"
+                         data-difficulty="<?=$task['difficulty']?>"
+                         data-importance="<?=$task['importance']?>"
+                         data-time="<?=$task['time']?>"
                          <?= $deadline ?>>
                         <button class="menu-btn" data-action="pin" data-pinned="<?= $isPinned ? 'true' : 'false' ?>" title="<?= $isPinned ? 'Odepnij' : 'Przypnij' ?>">
                             <img src="public/assets/<?= $starIcon ?>" class="list-icon" alt="ikona">
                         </button>
                         <div class="content">
                             <p class="title"><?= htmlspecialchars($task['title']) ?></p>
-                            <?= $description ?>
+                            <p class="description"><?= htmlspecialchars($task['taskdescription'] ?? '') ?></p>
                             <p class="description">Kategoria: <?= htmlspecialchars($categoryName) ?></p>
                             <p class="description deadline-text">Termin: <span class="deadline-value"><?= $task['deadlinedate'] ? htmlspecialchars($task['deadlinedate']) : 'Brak terminu' ?></span></p>
                         </div>
