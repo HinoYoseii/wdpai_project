@@ -14,12 +14,11 @@ class AccountController extends AppController {
     public function account() {
         $this->requireUser();
 
-        $user = $this->getUserCookie();
-        $userId = $user['id'];
+        $userId = $this->getUserId();
 
         $preferences = $this->preferencesRepository->getPreferences($userId);
-
-        $finished = !empty($preferences) ? array_shift($preferences) : null;
+        array_shift($preferences);
+        $finished = array_shift($preferences);
 
         $influences = [
             ['name' => 'Zabawa', 'key' => 'funInfluence', 'value' => $preferences['funinfluence'] ?? 1.0],
@@ -39,10 +38,10 @@ class AccountController extends AppController {
         try {
             $this->requireUser();
 
-            $user = $this->getUserCookie();
-            $userId = $user['id'];
+            $userId = $this->getUserId();
 
-            $finished = isset($_POST['finished']) ? true : false;
+            $deletefinishedtasks = isset($_POST['finished']) && $_POST['finished'] !== '' ? true : false;
+            
             $funInfluence = (float)($_POST['funInfluence'] ?? 1.0);
             $difficultyInfluence = (float)($_POST['difficultyInfluence'] ?? 1.0);
             $importanceInfluence = (float)($_POST['importanceInfluence'] ?? 1.0);
@@ -66,7 +65,7 @@ class AccountController extends AppController {
 
             $this->preferencesRepository->updatePreferences(
                 $userId,
-                $finished,
+                $deletefinishedtasks,
                 $funInfluence,
                 $difficultyInfluence,
                 $importanceInfluence,
@@ -74,11 +73,9 @@ class AccountController extends AppController {
                 $deadlineInfluence
             );
             
-            // Add success response
             $this->jsonResponse('success', null, 'Preferencje zostały zaktualizowane', 200);
-            
         } catch (Exception $e) {
-            $this->jsonResponse('error', null, 'Internal server error: ' . $e->getMessage(), 500);
+            $this->jsonResponse('error', null, 'Internal server error: ', 500);
         }
     }
 }

@@ -44,6 +44,7 @@ async function fetchAPI(url, options = {}) {
             },
             ...options
         });
+        
 
         const data = await response.json();
         
@@ -182,7 +183,6 @@ function openModal(taskData = null) {
     currentTaskId = taskData ? taskData.taskid : null;
     
     if (taskData) {
-        console.log(taskData);
         modalTitle.textContent = 'Edytuj zadanie';
         taskIdInput.value = taskData.taskid;
         document.getElementById('taskTitle').value = taskData.title || '';

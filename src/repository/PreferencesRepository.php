@@ -11,7 +11,7 @@ class PreferencesRepository extends Repository
     }
 
     public function getPreferences(int $userId): ?array
-    {
+    {   
         $stmt = $this->database->connect()->prepare('
             SELECT * FROM userpreferences WHERE userid = :userId
         ');
@@ -47,7 +47,7 @@ class PreferencesRepository extends Repository
             WHERE userid = ?
         ');
         $stmt->execute([
-            $deleteFinishedTasks,
+            $deleteFinishedTasks ? 'true' : 'false',
             $funInfluence,
             $difficultyInfluence,
             $importanceInfluence,

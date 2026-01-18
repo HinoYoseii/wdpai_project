@@ -4,7 +4,7 @@ preferencesForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const formData = new FormData(preferencesForm);
-    
+    console.log(formData.getAll('finished'));
     try {
         const response = await fetch('/updatePrefs', {method: 'POST',body: formData});
         
@@ -13,7 +13,7 @@ preferencesForm.addEventListener('submit', async (e) => {
         if (response.ok && data.status === 'success') {
             alert('Preferencje zostały zapisane!');
         } else {
-            alert('Błąd: ' + (data.message || 'Nie udało się zapisać preferencji'));
+            alert('Nie udało się zapisać preferencji');
         }
     } catch (error) {
         console.error('Error:', error);

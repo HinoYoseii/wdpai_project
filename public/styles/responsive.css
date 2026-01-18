@@ -62,10 +62,6 @@
         display: none;
     }
     
-    nav ul {
-        gap: 0;
-    }
-    
     .nav-icon-only {
         display: flex;
     }
@@ -86,11 +82,15 @@
     }
     
     .modal-content-form {
-        max-height: fit-content;
+        height: fit-content;
         margin: auto 0;
         padding: var(--spacing-md);
         width: 100%;
         min-width: unset;
+    }
+
+    .modal-fullscreen{
+        height: 100vh;
     }
     
     .modal h1 {
@@ -135,11 +135,10 @@
         align-items: flex-start;
     }
     
-    .logout-form{
-        display: flex;
-        justify-content: center;
-        margin-bottom: 0.5rem;
+    .logout-btn:not(.center){
+        padding-bottom: 1.5rem;
     }
+
     .fake-btn {
         display:block;
     }

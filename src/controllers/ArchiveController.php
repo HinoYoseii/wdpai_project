@@ -21,9 +21,8 @@ class ArchiveController extends AppController {
     public function archive() {
         $this->requireUser();
 
-        $user = $this->getUserCookie();
-        $userId = $user['id'];
-
+        $userId = $this->getUserId();
+        
         $tasks = $this->taskRepository->getFinishedTasks($userId);
         $categories = $this->categoryRepository->getCategoriesByUserId($userId);
 

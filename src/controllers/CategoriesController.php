@@ -17,8 +17,7 @@ class CategoriesController extends AppController {
     public function categories() {
         $this->requireUser();
         
-        $user = $this->getUserCookie();
-        $userId = $user['id'];
+        $userId = $this->getUserId();
 
         $categories = $this->categoriesRepository->getCategoriesByUserId($userId);
         
@@ -33,8 +32,7 @@ class CategoriesController extends AppController {
         try {
             $this->requireUser();
 
-            $user = $this->getUserCookie();
-            $userId = $user['id'];
+            $userId = $this->getUserId();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -62,8 +60,7 @@ class CategoriesController extends AppController {
         try {
             $this->requireUser();
 
-            $user = $this->getUserCookie();
-            $userId = (int)$user['id'];
+            $userId = $this->getUserId();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -98,8 +95,7 @@ class CategoriesController extends AppController {
         try {
             $this->requireUser();
 
-            $user = $this->getUserCookie();
-            $userId = (int)$user['id'];
+            $userId = $this->getUserId();
 
             $data = $this->getJsonInput();
             if (!$data) {

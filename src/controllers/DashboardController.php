@@ -21,10 +21,8 @@ class DashboardController extends AppController {
     public function dashboard() {
         $this->requireUser();
 
-        $user = $this->getUserCookie();
-        $userId = $user['id'];
+        $userId = $this->getUserId();
 
-        // Load tasks and categories
         $tasks = $this->taskRepository->getUnfinishedTasks($userId);
         $tasksWithScore = $this->calculateTaskPriorities($tasks ?: [], $userId);
         $categories = $this->categoryRepository->getCategoriesByUserId($userId);
@@ -41,8 +39,7 @@ class DashboardController extends AppController {
         try {
             $this->requireUser();
 
-            $user = $this->getUserCookie();
-            $userId = $user['id'];
+            $userId = $this->getUserId();
 
             $data = $this->getJsonInput();
             if (!$data) {
@@ -146,8 +143,7 @@ class DashboardController extends AppController {
         try {
             $this->requireUser();
 
-            $user = $this->getUserCookie();
-            $userId = $user['id'];
+            $userId = $this->getUserId();
 
             $data = $this->getJsonInput();
             if (!$data) {

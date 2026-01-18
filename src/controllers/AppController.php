@@ -22,38 +22,31 @@ class AppController {
     {
         return $_SESSION['user'] ?? null;
     }
-
-    protected function requireLogin(): void
-    {
-        if (!$this->isAuthenticated()) {
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/login");
-        }
+    
+    protected function getUserId(): ?int{
+        $user = $this->getUserCookie();
+        return $user['id'];
     }
 
     protected function requireAdmin(): void
     {
         if (!$this->isAuthenticated()) {
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/login");
+            $this->redirect('login');
         }
 
         if (($this->getUserCookie()['role'] ?? null) !== 'admin') {
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/error");
+            $this->redirect('error');
         }
     }
 
     protected function requireUser(): void
     {
         if (!$this->isAuthenticated()) {
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/login");
+            $this->redirect('login');
         }
 
         if (($this->getUserCookie()['role'] ?? null) !== 'user') {
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/admin");
+            $this->redirect('admin');
         }
     }
 
@@ -108,5 +101,10 @@ class AppController {
             'err_code' => $err_code,
             'err_msg' => $err_msg
         ]);
+    }
+
+    protected function redirect(string $location){
+        $url = "http://$_SERVER[HTTP_HOST]";
+        header("Location: {$url}/$location");
     }
 }

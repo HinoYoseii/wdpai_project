@@ -10,12 +10,10 @@ class SecurityController extends AppController
     {
         $this->userRepository = UserRepository::getInstance();
         if(($this->getUserCookie()['role'] ?? null) == 'user'){
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/dashboard");
+            $this->redirect('dashboard');
         }
         if(($this->getUserCookie()['role'] ?? null) == 'admin'){
-            $url = "http://$_SERVER[HTTP_HOST]";
-            header("Location: {$url}/admin");
+            $this->redirect('admin');
         }
     }
 
@@ -58,8 +56,7 @@ class SecurityController extends AppController
             'role' => $userRow['userrole'] ?? null
         ];
         
-        $url = "http://$_SERVER[HTTP_HOST]";
-        header("Location: {$url}/dashboard");
+        $this->redirect('dashboard');
     }
 
     public function register(){
@@ -77,7 +74,7 @@ class SecurityController extends AppController
         $username = $_POST['username'] ?? '';
 
         if(strlen($email) > 100 or strlen($password) > 100 or strlen($password) > 100 or strlen($username) > 100){
-            return $this->render('register', ['messages' => 'Niepoprawna długość.']);
+            return $this->render('register', ['messages' => 'Dane wejściowe zbyt długie.']);
         } 
 
         if(empty($email) || empty($password) || empty($password2)  || empty($username)){
@@ -105,16 +102,17 @@ class SecurityController extends AppController
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
         $this->userRepository->createUser($email, $hashedPassword, $username);
 
-        return $this->render('login', ['confirmation' => 'Konto utworzone pomyślnie. Prosze się zalogować.']);
+        $this->redirect('login');
     }
 
     public function logout(){
-        if(!$this->isPost()){
-            return $this->render('account');
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
-        setcookie("user", "", time() - 3600, "/");
-        $url = "http://$_SERVER[HTTP_HOST]";
-        header("Location: {$url}/login");
+
+        session_unset(); 
+        session_destroy();
 
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
@@ -129,7 +127,6 @@ class SecurityController extends AppController
             );
         }
         
-        session_unset(); 
-        session_destroy();
+        $this->redirect('login');
     }
 }
