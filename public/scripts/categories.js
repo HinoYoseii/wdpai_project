@@ -136,9 +136,7 @@ async function saveCategory() {
 
         closeModal();
         location.reload();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
+    } catch (error) {}
 }
 
 function confirmDeleteCategory(categoryId) {
@@ -162,7 +160,5 @@ async function deleteCategory() {
 
         closeDeleteModal();
         location.reload();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
+    } catch (error) {}
 }

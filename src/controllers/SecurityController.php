@@ -85,7 +85,7 @@ class SecurityController extends AppController
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { 
-            return $this->render('login', ['messages' => 'Niepoprawny format adresu e-mail.']); 
+            return $this->render('register', ['messages' => 'Niepoprawny format adresu e-mail.']); 
         } 
         if(!preg_match($pattern, $password)){
             return $this->render('register', ['messages' => 

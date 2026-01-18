@@ -128,9 +128,7 @@ async function deleteTask() {
 
         closeDeleteModal();
         location.reload();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
+    } catch (error) {}
 }
 
 async function unfinishTask(taskId) {
@@ -141,7 +139,5 @@ async function unfinishTask(taskId) {
         });
 
         location.reload();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
+    } catch (error) {}
 }

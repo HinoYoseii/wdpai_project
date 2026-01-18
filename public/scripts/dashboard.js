@@ -111,7 +111,6 @@ function filterTasks(categoryId) {
         }
     });
 
-    // Check if any tasks are visible
     const visibleTasks = Array.from(taskItems).filter(item => item.style.display !== 'none');
     const emptyMessage = elements.todoList.querySelector('.empty-message');
     
@@ -267,9 +266,7 @@ async function saveTask() {
 
         closeModal();
         location.reload();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
+    } catch (error) {}
 }
 
 function confirmDeleteTask(taskId) {
@@ -293,9 +290,7 @@ async function deleteTask() {
 
         closeDeleteModal();
         location.reload();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
+    } catch (error) {}
 }
 
 async function pinTask(taskId, shouldPin) {
@@ -309,9 +304,7 @@ async function pinTask(taskId, shouldPin) {
         });
 
         location.reload();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
+    } catch (error) {}
 }
 
 async function finishTask(taskId) {
@@ -322,7 +315,5 @@ async function finishTask(taskId) {
         });
 
         location.reload();
-    } catch (error) {
-        // Error already handled by fetchAPI
-    }
+    } catch (error) {}
 }
