@@ -13,6 +13,7 @@ const elements = {
     get categoryForm() { return document.getElementById('categoryForm'); }
 };
 
+// Fetch API z obsługą błędów
 async function fetchAPI(url, options = {}) {
     try {
         const response = await fetch(url, {
@@ -28,19 +29,16 @@ async function fetchAPI(url, options = {}) {
         if (data.status === 'success') {
             return data;
         } else {
-            throw new Error(data.message || 'Błąd operacji');
+            throw new Error(data.message);
         }
     } catch (error) {
         console.error('API Error:', error);
-        showError(error.message || 'Nie udało się wykonać operacji');
+        alert(error.message || 'Nie udało się wykonać operacji');
         throw error;
     }
 }
 
-function showError(message) {
-    alert(message);
-}
-
+// Inicjalizacja przycisków menu przy kategoriach
 function initializeCategoryListHandlers() {
     elements.categoriesList.addEventListener('click', (e) => {
         const button = e.target.closest('.menu-btn');
@@ -53,37 +51,34 @@ function initializeCategoryListHandlers() {
 
         switch (action) {
             case 'edit':
-                editCategory(categoryId, categoryName);
+                openModal(categoryId, categoryName);
                 break;
             case 'delete':
-                confirmDeleteCategory(categoryId);
+                categoryToDelete = categoryId;
+                elements.deleteModal.style.display = 'flex';
                 break;
         }
     });
 }
 
+// Inicjalizacja okien modalnych add edit delete
 function initializeModalHandlers() {
-    const addBtn = document.getElementById('addCategoryBtn');
-    const addBtnMobile = document.getElementById('addCategoryBtnMobile');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-
-    addBtn.addEventListener('click', () => openModal());
-    addBtnMobile.addEventListener('click', () => openModal());
-    cancelBtn.addEventListener('click', closeModal);
-    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-    confirmDeleteBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
+    document.getElementById('addCategoryBtn').addEventListener('click', () => openModal());
+    document.getElementById('addCategoryBtnMobile').addEventListener('click', () => openModal());
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async (e) => {
+        e.preventDefault(); 
         await deleteCategory();
     });
 
     elements.categoryForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); 
         await saveCategory();
     });
 }
 
+// Otwórz add/edit modal
 function openModal(categoryId = null, categoryName = '') {
     const modalTitle = document.getElementById('modalTitle');
     const categoryIdInput = document.getElementById('categoryId');
@@ -105,15 +100,19 @@ function openModal(categoryId = null, categoryName = '') {
     categoryNameInput.focus();
 }
 
+// Zamknij add/edit modal
 function closeModal() {
     elements.categoryModal.style.display = 'none';
     currentCategoryId = null;
 }
 
-function editCategory(categoryId, categoryName) {
-    openModal(categoryId, categoryName);
+// Zamknij delete modal
+function closeDeleteModal() {
+    elements.deleteModal.style.display = 'none';
+    categoryToDelete = null;
 }
 
+// Zapisz kategorię
 async function saveCategory() {
     const categoryId = document.getElementById('categoryId').value;
     const categoryName = document.getElementById('categoryName').value.trim();
@@ -139,16 +138,7 @@ async function saveCategory() {
     } catch (error) {}
 }
 
-function confirmDeleteCategory(categoryId) {
-    categoryToDelete = categoryId;
-    elements.deleteModal.style.display = 'flex';
-}
-
-function closeDeleteModal() {
-    elements.deleteModal.style.display = 'none';
-    categoryToDelete = null;
-}
-
+// Usuń kategorię
 async function deleteCategory() {
     if (!categoryToDelete) return;
 

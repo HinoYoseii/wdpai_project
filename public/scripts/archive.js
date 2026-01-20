@@ -12,6 +12,7 @@ const elements = {
     get categoryFilter() { return document.getElementById('categoryFilter'); }
 };
 
+// Fetch API z obsługą błędów
 async function fetchAPI(url, options = {}) {
     try {
         const response = await fetch(url, {
@@ -27,19 +28,16 @@ async function fetchAPI(url, options = {}) {
         if (data.status === 'success') {
             return data;
         } else {
-            throw new Error(data.message || 'Błąd operacji');
+            throw new Error(data.message);
         }
     } catch (error) {
         console.error('API Error:', error);
-        showError(error.message || 'Nie udało się wykonać operacji');
+        alert(error.message || 'Nie udało się wykonać operacji');
         throw error;
     }
 }
 
-function showError(message) {
-    alert(message);
-}
-
+// Inicjalizacja filtru dla każdej kategorii
 function initializeFilterHandlers() {
     if (elements.categoryFilter) {
         elements.categoryFilter.addEventListener('change', (e) => {
@@ -49,6 +47,7 @@ function initializeFilterHandlers() {
     }
 }
 
+// Filtrowanie zadań
 function filterTasks(categoryId) {
     const taskItems = elements.todoList.querySelectorAll('.list-item');
     
@@ -60,7 +59,6 @@ function filterTasks(categoryId) {
         }
     });
 
-    // Check if any tasks are visible
     const visibleTasks = Array.from(taskItems).filter(item => item.style.display !== 'none');
     const emptyMessage = elements.todoList.querySelector('.empty-message');
     
@@ -76,6 +74,7 @@ function filterTasks(categoryId) {
     }
 }
 
+// Inicjalizacja przycisków przy zadaniach
 function initializeTaskListHandlers() {
     elements.todoList.addEventListener('click', async (e) => {
         const button = e.target.closest('.menu-btn');
@@ -87,7 +86,8 @@ function initializeTaskListHandlers() {
 
         switch (action) {
             case 'delete':
-                confirmDeleteTask(taskId);
+                taskToDelete = taskId;
+                elements.deleteModal.style.display = 'flex';
                 break;
             case 'unfinish':
                 await unfinishTask(taskId);
@@ -96,27 +96,22 @@ function initializeTaskListHandlers() {
     });
 }
 
+// Inicjalizacja obsługi delete modal
 function initializeModalHandlers() {
-    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-
-    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-    confirmDeleteBtn.addEventListener('click', async (e) => {
+    document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async (e) => {
         e.preventDefault();
         await deleteTask();
     });
 }
 
-function confirmDeleteTask(taskId) {
-    taskToDelete = taskId;
-    elements.deleteModal.style.display = 'flex';
-}
-
+// Zamknij delete modal
 function closeDeleteModal() {
     elements.deleteModal.style.display = 'none';
     taskToDelete = null;
 }
 
+// Usuń task
 async function deleteTask() {
     if (!taskToDelete) return;
 
@@ -131,6 +126,7 @@ async function deleteTask() {
     } catch (error) {}
 }
 
+// Cofnij zakończenie taska
 async function unfinishTask(taskId) {
     try {
         await fetchAPI('/unfinishTask', {

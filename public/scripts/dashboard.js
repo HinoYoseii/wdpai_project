@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeFilterHandlers();
     initializeTaskListHandlers();
     formatAllDeadlines();
+    storeTasks();
 });
 
 let currentTaskId = null;
@@ -17,8 +18,8 @@ const elements = {
     get categoryFilter() { return document.getElementById('categoryFilter'); }
 };
 
-// Store initial tasks data
-document.addEventListener('DOMContentLoaded', () => {
+// Przechowaj pobrane zadania
+function storeTasks(){
     const taskItems = document.querySelectorAll('.list-item[data-task-id]');
     allTasks = Array.from(taskItems).map(item => {
         return {
@@ -33,8 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
             time: item.dataset.time
         };
     });
-});
+}
 
+// Fetch API z obsługą błędów
 async function fetchAPI(url, options = {}) {
     try {
         const response = await fetch(url, {
@@ -44,26 +46,22 @@ async function fetchAPI(url, options = {}) {
             },
             ...options
         });
-        
 
         const data = await response.json();
         
         if (data.status === 'success') {
             return data;
         } else {
-            throw new Error(data.message || 'Błąd operacji');
+            throw new Error(data.message);
         }
     } catch (error) {
         console.error('API Error:', error);
-        showError(error.message || 'Nie udało się wykonać operacji');
+        alert(error.message || 'Nie udało się wykonać operacji');
         throw error;
     }
 }
 
-function showError(message) {
-    alert(message);
-}
-
+// Formatowanie jednego deadline
 function formatDeadline(deadlineStr) {
     const deadline = new Date(deadlineStr);
     const now = new Date();
@@ -83,6 +81,7 @@ function formatDeadline(deadlineStr) {
     }
 }
 
+// Formatowanie wszystkich deadline'ów
 function formatAllDeadlines() {
     document.querySelectorAll('.deadline-value').forEach(el => {
         const deadlineStr = el.textContent;
@@ -92,6 +91,7 @@ function formatAllDeadlines() {
     });
 }
 
+// Inicjalizacja filtra
 function initializeFilterHandlers() {
     if (elements.categoryFilter) {
         elements.categoryFilter.addEventListener('change', (e) => {
@@ -101,6 +101,7 @@ function initializeFilterHandlers() {
     }
 }
 
+// Filtrowanie zadań
 function filterTasks(categoryId) {
     const taskItems = elements.todoList.querySelectorAll('.list-item');
     
@@ -127,6 +128,7 @@ function filterTasks(categoryId) {
     }
 }
 
+// Inicjalizacja przycisków menu przy zadaniach
 function initializeTaskListHandlers() {
     elements.todoList.addEventListener('click', async (e) => {
         const button = e.target.closest('.menu-btn');
@@ -145,27 +147,36 @@ function initializeTaskListHandlers() {
                 await finishTask(taskId);
                 break;
             case 'edit':
-                editTask(taskId, listItem);
+                const taskData = {
+                    taskid: taskId,
+                    title: listItem.querySelector('.title').textContent,
+                    taskdescription: listItem.querySelectorAll('.description')[0]?.textContent || '',
+                    categoryid: listItem.dataset.categoryId || '',
+                    deadlinedate: listItem.dataset.deadline || null,
+                    fun: listItem.dataset.fun,
+                    difficulty: listItem.dataset.difficulty,
+                    importance: listItem.dataset.importance,
+                    time: listItem.dataset.time
+                };
+                
+                openModal(taskData);
                 break;
             case 'delete':
-                confirmDeleteTask(taskId);
+                taskToDelete = taskId;
+                elements.deleteModal.style.display = 'flex';
                 break;
         }
     });
 }
 
-function initializeModalHandlers() {
-    const addBtn = document.getElementById('addTaskBtn');
-    const addBtnMobile = document.getElementById('addTaskBtnMobile');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
-    addBtnMobile.addEventListener('click', () => openModal());
-    addBtn.addEventListener('click', () => openModal());
-    cancelBtn.addEventListener('click', closeModal);
-    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-    confirmDeleteBtn.addEventListener('click', async (e) => {
+// Inicjalizacja okien modalnych add edit delete
+function initializeModalHandlers() {
+    document.getElementById('addTaskBtn').addEventListener('click', () => openModal());
+    document.getElementById('addTaskBtnMobile').addEventListener('click', () => openModal());
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('confirmDeleteBtn').addEventListener('click', async (e) => {
         e.preventDefault();
         await deleteTask();
     });
@@ -176,6 +187,7 @@ function initializeModalHandlers() {
     });
 }
 
+// Otwórz add/edit modal
 function openModal(taskData = null) {
     const modalTitle = document.getElementById('modalTitle');
     const taskIdInput = document.getElementById('taskId');
@@ -208,27 +220,19 @@ function openModal(taskData = null) {
     document.getElementById('taskTitle').focus();
 }
 
+// Zamknij add/edit modal
 function closeModal() {
     elements.taskModal.style.display = 'none';
     currentTaskId = null;
 }
 
-function editTask(taskId, listItem) {
-    const taskData = {
-        taskid: taskId,
-        title: listItem.querySelector('.title').textContent,
-        taskdescription: listItem.querySelectorAll('.description')[0]?.textContent || '',
-        categoryid: listItem.dataset.categoryId || '',
-        deadlinedate: listItem.dataset.deadline || null,
-        fun: listItem.dataset.fun,
-        difficulty: listItem.dataset.difficulty,
-        importance: listItem.dataset.importance,
-        time: listItem.dataset.time
-    };
-    
-    openModal(taskData);
+// Zamknij delete modal
+function closeDeleteModal() {
+    elements.deleteModal.style.display = 'none';
+    taskToDelete = null;
 }
 
+// Zapisz zadanie
 async function saveTask() {
     const taskId = document.getElementById('taskId').value;
     const title = document.getElementById('taskTitle').value.trim();
@@ -265,16 +269,7 @@ async function saveTask() {
     } catch (error) {}
 }
 
-function confirmDeleteTask(taskId) {
-    taskToDelete = taskId;
-    elements.deleteModal.style.display = 'flex';
-}
-
-function closeDeleteModal() {
-    elements.deleteModal.style.display = 'none';
-    taskToDelete = null;
-}
-
+// Usuń zadanie
 async function deleteTask() {
     if (!taskToDelete) return;
 
@@ -289,6 +284,7 @@ async function deleteTask() {
     } catch (error) {}
 }
 
+// Przypnij/odepnij zadanie
 async function pinTask(taskId, shouldPin) {
     try {
         await fetchAPI('/pinTask', {
@@ -303,6 +299,7 @@ async function pinTask(taskId, shouldPin) {
     } catch (error) {}
 }
 
+// Zakończ zadanie
 async function finishTask(taskId) {
     try {
         await fetchAPI('/finishTask', {

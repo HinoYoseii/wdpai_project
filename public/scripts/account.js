@@ -1,5 +1,6 @@
 const preferencesForm = document.querySelector('.form-preferences');
 
+// Update preferencji użytkownika
 preferencesForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -21,6 +22,7 @@ preferencesForm.addEventListener('submit', async (e) => {
     }
 });
 
+// Obsługa zmiany wartości inputów range (mnożnika)
 document.addEventListener('DOMContentLoaded', function() {
     const rangeInputs = document.querySelectorAll('input[type="range"]');
     

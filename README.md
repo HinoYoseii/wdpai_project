@@ -18,6 +18,10 @@ Użytkownik przy tworzeniu zadania może podać:
 # Implementacja wymagań
 
 ### Architektura aplikacji
+**MVC**
+- **Model:** Repozytoria w folderze src/repository, odpowiadają za komunikację z bazą danych.
+- **View:** Widoki w folderze public/views, odpowiadają za prezentację danych.
+- **Controler:** Kontrolery w folderze src/controllers, odpowiadają za zarządzanie danymi.
 
 ### Diagram ERD
 <img src="readme_images/erd.jpg"/>

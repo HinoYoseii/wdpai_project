@@ -13,6 +13,11 @@ class AppController {
         return $_SERVER["REQUEST_METHOD"] === 'POST';
     }
 
+    protected function redirect(string $location){
+        $url = "http://$_SERVER[HTTP_HOST]";
+        header("Location: {$url}/$location");
+    }
+
     protected function isAuthenticated(): bool
     {
         return isset($_SESSION['user']);
@@ -69,6 +74,7 @@ class AppController {
         echo $output;
     }
 
+
     protected function getJsonInput(): ?array {
         $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
         
@@ -89,7 +95,7 @@ class AppController {
         }
         
         if ($data !== null) {
-            $response = array_merge($response, $data);
+            $response['data'] = $data;
         }
         
         echo json_encode($response);
@@ -101,10 +107,5 @@ class AppController {
             'err_code' => $err_code,
             'err_msg' => $err_msg
         ]);
-    }
-
-    protected function redirect(string $location){
-        $url = "http://$_SERVER[HTTP_HOST]";
-        header("Location: {$url}/$location");
     }
 }

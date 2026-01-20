@@ -5,21 +5,23 @@ const userList = document.getElementById('userList');
 const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
+// Click event na przycisku usunięcia, otwarcie delete modal
 userList.addEventListener('click', (e) => {
     const deleteBtn = e.target.closest('[data-action="delete"]');
     if (!deleteBtn) return;
 
     const listItem = deleteBtn.closest('.list-item');
-    const email = listItem.querySelector('.description').textContent;
-    
-    confirmDeleteUser(email);
+    userToDelete = listItem.querySelector('.description').textContent;
+    deleteModal.style.display = 'flex';
 });
 
-function confirmDeleteUser(email) {
-    userToDelete = email;
-    deleteModal.style.display = 'flex';
-}
+// Zamknięcie delete modal
+cancelDeleteBtn.addEventListener('click', () => {
+    deleteModal.style.display = 'none';
+    userToDelete = null;
+});
 
+// Usuwanie użytkownika
 confirmDeleteBtn.addEventListener('click', async () => {
     if (!userToDelete) return;
 
@@ -32,20 +34,14 @@ confirmDeleteBtn.addEventListener('click', async () => {
             body: JSON.stringify({ email: userToDelete })
         });
 
-        const data = await response.json();
+        await response.json();
 
         if (response.ok) {
             location.reload();
         } else {
-            alert('Błąd: ' + (data.message || 'Nie udało się usunąć użytkownika'));
+            alert('Nie udało się usunąć użytkownika');
         }
     } catch (error) {
-        console.error('Error:', error);
         alert('Wystąpił błąd podczas usuwania użytkownika');
     }
-});
-
-cancelDeleteBtn.addEventListener('click', () => {
-    deleteModal.style.display = 'none';
-    userToDelete = null;
 });

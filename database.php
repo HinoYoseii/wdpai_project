@@ -1,6 +1,4 @@
 <?php
-# TODO zamienić config na zmienne .env
-# singletona trzeba zrobić huh, jak będziemy używać connect to trzeba napisać disconnect
 require_once "config.php";
 
 class Database {
@@ -27,7 +25,6 @@ class Database {
                 ["sslmode"  => "prefer"]
             );
 
-            // set the PDO error mode to exception
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $conn;
         }

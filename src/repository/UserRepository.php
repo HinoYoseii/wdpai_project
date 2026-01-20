@@ -77,7 +77,8 @@ class UserRepository extends Repository
         
         return $userId;
     }
-
+    
+    // Usuwa użytkownika z podanym adresem email
     public function deleteUserByEmail(string $email): bool
     {
         $stmt = $this->database->connect()->prepare("

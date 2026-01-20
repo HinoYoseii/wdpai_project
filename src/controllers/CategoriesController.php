@@ -7,11 +7,9 @@ require_once __DIR__.'/../repository/CategoriesRepository.php';
 class CategoriesController extends AppController {
 
     private $categoriesRepository;
-    private $userRepository;
 
     public function __construct() {
         $this->categoriesRepository = CategoriesRepository::getInstance();
-        $this->userRepository = UserRepository::getInstance();
     }
 
     public function categories() {
